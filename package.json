@@ -1,0 +1,29 @@
+{
+  "name": "data-structures",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "prettier": "^3.2.5",
+    "vite": "^5.1.4",
+    "vitest": "^1.3.1"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "lib/main.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/data-structures.es.js",
+      "require": "./dist/data-structures.umd.js"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "test": "vitest",
+    "build": "vite build",
+    "preview": "vite preview"
+  }
+}
