@@ -1,5 +1,6 @@
 import { Bench } from "tinybench";
-import { SkipList } from "./skip-list";
+// import { SkipList } from "./skip-list";
+import { OptimizedSkipList as SkipList } from "./optimized-skip-list";
 
 /**
  * Benchmarking skip list vs array
