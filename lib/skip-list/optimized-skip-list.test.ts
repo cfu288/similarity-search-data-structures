@@ -1,6 +1,6 @@
 import { describe, expect, test as it } from "vitest";
 
-import { SkipListOptimized as SkipList } from "./skip-list-optimized.ts";
+import { OptimizedSkipList as SkipList } from "./optimized-skip-list.ts";
 
 describe("SkipListOptimized", () => {
   it("can insert with insert() and check inserted with contains()", () => {
@@ -88,8 +88,6 @@ describe("SkipListOptimized", () => {
     for (let i = 1; i < max; i++) {
       expect(list.contains(i)).toBe(true);
     }
-
-    console.log(list.toPrettyString());
 
     expect(list.toPrettyString()).toBeTruthy();
   });

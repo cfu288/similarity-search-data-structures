@@ -27,7 +27,7 @@ export class SkipList<T extends Comparable> {
 
   constructor(maxLevels = MAX_LEVELS) {
     this.headerNode = new SkipNode<T>(
-      0, // Changed from undefined as unknown as T to 0, assuming 0 as a neutral value for initialization
+      0 as T, // Changed from undefined as unknown as T to 0, assuming 0 as a neutral value for initialization
       MAX_LEVELS
     );
     this.maxLevels = maxLevels;

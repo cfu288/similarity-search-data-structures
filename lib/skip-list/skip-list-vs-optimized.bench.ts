@@ -1,6 +1,6 @@
 import { Bench } from "tinybench";
 import { SkipList } from "./skip-list";
-import { SkipListOptimized } from "./skip-list-optimized";
+import { OptimizedSkipList } from "./optimized-skip-list";
 
 /**
  * Benchmarking skip list vs optimized skip list
@@ -10,7 +10,7 @@ const SMALL_COUNT = 1000;
 const MED_COUNT = 5000;
 const LARGE_COUNT = 10000;
 let skipList = new SkipList<number>();
-let optimizedSkip = new SkipListOptimized<number>();
+let optimizedSkip = new OptimizedSkipList<number>();
 
 const getRandomInteger = (min = 0, max = 100000) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -23,7 +23,7 @@ const getRandomInteger = (min = 0, max = 100000) => {
     time: 100,
     teardown: () => {
       skipList = new SkipList<number>();
-      optimizedSkip = new SkipListOptimized<number>();
+      optimizedSkip = new OptimizedSkipList<number>();
     },
   });
 
@@ -52,7 +52,7 @@ const getRandomInteger = (min = 0, max = 100000) => {
     time: 100,
     teardown: () => {
       skipList = new SkipList<number>();
-      optimizedSkip = new SkipListOptimized<number>();
+      optimizedSkip = new OptimizedSkipList<number>();
     },
   });
 
@@ -87,7 +87,7 @@ const getRandomInteger = (min = 0, max = 100000) => {
     },
     teardown: () => {
       skipList = new SkipList<number>();
-      optimizedSkip = new SkipListOptimized<number>();
+      optimizedSkip = new OptimizedSkipList<number>();
     },
   });
 
@@ -122,7 +122,7 @@ const getRandomInteger = (min = 0, max = 100000) => {
     },
     teardown: () => {
       skipList = new SkipList<number>();
-      optimizedSkip = new SkipListOptimized<number>();
+      optimizedSkip = new OptimizedSkipList<number>();
     },
   });
 
@@ -157,7 +157,7 @@ const getRandomInteger = (min = 0, max = 100000) => {
     },
     teardown: () => {
       skipList = new SkipList<number>();
-      optimizedSkip = new SkipListOptimized<number>();
+      optimizedSkip = new OptimizedSkipList<number>();
     },
   });
 
@@ -206,7 +206,7 @@ const getRandomInteger = (min = 0, max = 100000) => {
     },
     teardown: () => {
       skipList = new SkipList<number>();
-      optimizedSkip = new SkipListOptimized<number>();
+      optimizedSkip = new OptimizedSkipList<number>();
       listSetOfInsertedValuesMed = new Set<number>();
       arraySetOfInsertedValuesMed = new Set<number>();
     },
@@ -247,7 +247,7 @@ const getRandomInteger = (min = 0, max = 100000) => {
     },
     teardown: () => {
       skipList = new SkipList<number>();
-      optimizedSkip = new SkipListOptimized<number>();
+      optimizedSkip = new OptimizedSkipList<number>();
       listSetOfInsertedValues = new Set<number>();
       arraySetOfInsertedValues = new Set<number>();
     },

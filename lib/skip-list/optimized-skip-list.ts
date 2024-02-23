@@ -3,10 +3,24 @@ import { MAX_LEVELS } from "./constants";
 import { calculateLevels } from "./helpers";
 
 /**
- * A Skip List is a data structure that allows for fast search, insertion, and deletion of elements from a list.
- * It is a probabilistic data structure that uses multiple layers of linked lists to achieve fast search times.
+ * A Skip List implementation with optimized memory usage, improved insert performance but worse delete performance.
+ * Instead of using Node objects, this implementation uses arrays to store the values and next pointers.
+ *
+ * ```ts
+ * import { OptimizedSkipList } from "similarity-search-data-structures/skip-list";
+ *
+ * const list = new OptimizedSkipList<number>();
+ * list.insert(1);
+ * list.insert(2);
+ * list.insert(3);
+ *
+ * console.log(list.contains(2)); // true
+ * console.log(list.contains(4)); // false
+ * console.log(list.size()); // 3
+ * console.log([...list]); // [1, 2, 3]
+ * ```
  */
-export class SkipListOptimized<T extends Comparable> {
+export class OptimizedSkipList<T extends Comparable> {
   private values: (T | null)[] = [];
   private next: number[][] = [];
   private firstEmptyCell: number = -1; // Indicates the first empty cell or -1 if there's none
@@ -47,6 +61,17 @@ export class SkipListOptimized<T extends Comparable> {
     return 0; // Fallback or default comparison
   }
 
+  /**
+   * Inserts a value into the skip list.
+   * This method calculates the level for the new node and inserts it into the appropriate levels.
+   *
+   * ```ts
+   * const list = new SkipList<number>();
+   * list.insert(1);
+   * ```
+   *
+   * @param value The value to be inserted into the skip list.
+   */
   insert(value: T): void {
     const levels = calculateLevels();
     const newNodeIndex = this.createNode(value, levels);
@@ -63,6 +88,24 @@ export class SkipListOptimized<T extends Comparable> {
     }
   }
 
+  /**
+   * Deletes a value from the skip list.
+   *
+   * ```ts
+   * const list = new SkipList<number>();
+   * list.insert(1);
+   * list.insert(2);
+   * list.insert(3);
+   *
+   * console.log(list.delete(2)); // true
+   * console.log(list.delete(4)); // false
+   * console.log(list.size()); // 2
+   * console.log([...list]); // [1, 3]
+   * ```
+   *
+   * @param value The value to be deleted from the skip list.
+   * @returns true if the value was found and deleted, false otherwise.
+   */
   delete(value: T): boolean {
     let current = this.headerNode;
     let found = false;
@@ -96,6 +139,22 @@ export class SkipListOptimized<T extends Comparable> {
     return found;
   }
 
+  /**
+   * Checks if the skip list contains a given value.
+   *
+   * ```ts
+   * const list = new SkipList<number>();
+   * list.insert(1);
+   * list.insert(2);
+   * list.insert(3);
+   *
+   * console.log(list.contains(2)); // true
+   * console.log(list.contains(4)); // false
+   * ```
+   *
+   * @param value The value to be checked for in the skip list.
+   * @returns true if the value is found, false otherwise.
+   */
   contains(value: T): boolean {
     let current = this.headerNode;
     for (let i = this.maxLevels - 1; i >= 0; i--) {
@@ -117,6 +176,22 @@ export class SkipListOptimized<T extends Comparable> {
     return false;
   }
 
+  /**
+   * Returns the value from the skip list if it exists.
+   *
+   * ```ts
+   * const list = new SkipList<number>();
+   * list.insert(1);
+   * list.insert(2);
+   * list.insert(3);
+   *
+   * console.log(list.get(2)); // 2
+   * console.log(list.get(4)); // undefined
+   * ```
+   *
+   * @param value The value to be retrieved from the skip list.
+   * @returns The value if it exists, undefined otherwise.
+   */
   get(value: T): T | undefined {
     let current = this.headerNode;
     for (let i = this.maxLevels - 1; i >= 0; i--) {
@@ -136,6 +211,22 @@ export class SkipListOptimized<T extends Comparable> {
     return undefined;
   }
 
+  /**
+   * Gets the index of a value in the lowest skip list layer.
+   *
+   * ```ts
+   * const list = new SkipList<number>();
+   * list.insert(1);
+   * list.insert(2);
+   * list.insert(3);
+   *
+   * console.log(list.indexOf(2)); // 1
+   * console.log(list.indexOf(4)); // -1
+   * ```
+   *
+   * @param value The value to be checked for in the skip list.
+   * @returns The index of the value if it exists, -1 otherwise.
+   */
   indexOf(value: T): number {
     let current = this.headerNode;
     let index = 0;
@@ -155,6 +246,19 @@ export class SkipListOptimized<T extends Comparable> {
     return -1;
   }
 
+  /**
+   * Returns the number of elements in the skip list.
+   *
+   * ```ts
+   * const list = new SkipList<number>();
+   * list.insert(1);
+   * list.insert(2);
+   * list.insert(3);
+   *
+   * console.log(list.size()); // 3
+   * ```
+   * @returns The number of elements in the skip list.
+   */
   size(): number {
     let current = this.headerNode;
     let size = 0;
@@ -165,6 +269,25 @@ export class SkipListOptimized<T extends Comparable> {
     return size;
   }
 
+  /**
+   * Returns a string representation of the skip list, showing the layout of values across different levels.
+   * This method is useful for debugging and understanding the structure of the skip list.
+   * The output is a multi-line string with each line representing a level in the skip list.
+   *
+   * ```ts
+   * const list = new SkipList<number>();
+   * list.insert(1);
+   * list.insert(2);
+   * list.insert(3);
+   *
+   * console.log(list.toPrettyString());
+   * // 3:      [  2  ]
+   * // 2:      [  2 3]
+   * // 1:      [1 2 3]
+   * ```
+   *
+   * @returns A string representation of the skip list.
+   */
   toPrettyString(): string {
     let representation = "";
     const paddingLength = this.maxLengthOfValue();
@@ -202,6 +325,26 @@ export class SkipListOptimized<T extends Comparable> {
     return maxValue;
   };
 
+  /**
+   * Returns an iterator for the skip list that allows iterating over the values in the list.
+   * This method is useful for using the skip list with the spread operator or iterate with a for loop.
+   *
+   * ```ts
+   * const list = new SkipList<number>();
+   * list.insert(1);
+   * list.insert(2);
+   * list.insert(3);
+   *
+   * console.log([...list]); // [1, 2, 3]
+   *
+   * for (const value of list) {
+   *   console.log(value);
+   * }
+   * // 1
+   * // 2
+   * // 3
+   * ```
+   */
   [Symbol.iterator] = function* () {
     let current = this.next[0][this.headerNode];
     while (current !== -1) {
