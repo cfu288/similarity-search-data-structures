@@ -41,7 +41,11 @@ const getRandomInteger = (min = 0, max = 100000) => {
     .add(`Array insert ${SMALL_COUNT}`, async () => {
       // insert in middle
       for (let i = 1; i < SMALL_COUNT; i++) {
-        array.splice(array.length / 2, 0, getRandomInteger());
+        array.splice(
+          array.length % 2 === 0 ? array.length / 2 : array.length / 3,
+          0,
+          getRandomInteger()
+        );
       }
     });
 
@@ -76,7 +80,11 @@ const getRandomInteger = (min = 0, max = 100000) => {
     .add(`Array insert ${MED_COUNT}`, async () => {
       // insert in middle
       for (let i = 1; i < MED_COUNT; i++) {
-        array.splice(array.length / 2, 0, getRandomInteger());
+        array.splice(
+          array.length % 2 === 0 ? array.length / 2 : array.length / 3,
+          0,
+          getRandomInteger()
+        );
       }
     });
 
