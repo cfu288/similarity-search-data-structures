@@ -6,7 +6,7 @@ module.exports = defineConfig({
     lib: {
       entry: path.resolve(__dirname, 'lib/main.ts'),
       name: 'data_structures',
-      fileName: (format) => `data-structures.${format}.js`
+      fileName: (format) => `similarity-search-data-structures.${format}.js`
     }
   }
 });

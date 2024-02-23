@@ -5,10 +5,10 @@ import { Comparable } from "./comparable";
  * Pointers point to the start of each node
  */
 export class SkipNode<T extends Comparable> {
-  public value: Comparable;
+  public value: T;
   public next: SkipNode<T>[];
 
-  constructor(value: Comparable, levels: number) {
+  constructor(value: T, levels: number) {
     this.value = value;
     this.next = new Array(levels);
   }

@@ -1,5 +1,5 @@
 {
-  "name": "data-structures",
+  "name": "similarity-search-data-structures",
   "version": "1.0.0",
   "description": "",
   "keywords": [],
@@ -15,17 +15,17 @@
     "dist"
   ],
   "main": "lib/main.ts",
-  "module": "dist/data-structures.es.js",
+  "module": "dist/similarity-search-data-structures.es.js",
   "exports": {
     ".": {
-      "import": "./dist/data-structures.es.js",
-      "require": "./dist/data-structures.umd.js"
+      "import": "./dist/similarity-search-data-structures.es.js",
+      "require": "./dist/similarity-search-data-structures.umd.js"
     }
   },
   "scripts": {
     "dev": "vite",
     "test": "vitest",
-    "bench": "npx tsx lib/skip-list/skip-list.bench.ts",
+    "bench": "npx tsx lib/skip-list/skip-list-vs-optimized.bench.ts",
     "build": "vite build",
     "preview": "vite preview"
   }

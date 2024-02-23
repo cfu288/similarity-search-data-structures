@@ -1,6 +1,6 @@
 import { Comparable } from "./comparable";
 import { MAX_LEVELS } from "./constants";
-import { calcluateLevels } from "./helpers";
+import { calculateLevels } from "./helpers";
 import { SkipNode } from "./skip-node";
 
 /**
@@ -8,7 +8,7 @@ import { SkipNode } from "./skip-node";
  * It is a probabilistic data structure that uses multiple layers of linked lists to achieve fast search times.
  *
  * ```ts
- * import { SkipList } from "data-structures/skip-list";
+ * import { SkipList } from "similarity-search-data-structures/skip-list";
  *
  * const list = new SkipList<number>();
  * list.insert(1);
@@ -55,7 +55,7 @@ export class SkipList<T extends Comparable> {
    */
   insert(value: T): void {
     // Calculate the level for the new node based on probability
-    const levels = calcluateLevels();
+    const levels = calculateLevels();
     // Create a new node with the given value and calculated levels
     const newNode = new SkipNode<T>(value, levels);
     // Start from the header node

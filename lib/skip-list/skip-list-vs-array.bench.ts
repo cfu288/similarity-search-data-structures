@@ -92,41 +92,13 @@ const getRandomInteger = (min = 0, max = 100000) => {
     time: 100,
     setup: () => {
       for (let i = 1; i < SMALL_COUNT; i++) {
-        list.insert({
-          value: getRandomInteger(),
-          compareTo: (otherInsertVal: number) => {
-            if (i < otherInsertVal) {
-              return -1;
-            } else if (i > otherInsertVal) {
-              return 1;
-            } else {
-              return 0;
-            }
-          },
-        });
-        array.push({
-          value: getRandomInteger(),
-          compareTo: (otherInsertVal: number) => {
-            if (i < otherInsertVal) {
-              return -1;
-            } else if (i > otherInsertVal) {
-              return 1;
-            } else {
-              return 0;
-            }
-          },
-        });
+        list.insert(getRandomInteger());
+        array.push(getRandomInteger());
       }
     },
     teardown: () => {
-      list = new SkipList<{
-        value: number;
-        compareTo: (otherInsertVal: number) => number;
-      }>();
-      array = new Array<{
-        value: number;
-        compareTo: (otherInsertVal: number) => number;
-      }>();
+      list = new SkipList<number>();
+      array = new Array<number>();
     },
   });
 

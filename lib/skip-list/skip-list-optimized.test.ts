@@ -1,8 +1,8 @@
 import { describe, expect, test as it } from "vitest";
 
-import { SkipList } from "./skip-list.ts";
+import { SkipListOptimized as SkipList } from "./skip-list-optimized.ts";
 
-describe("SkipList", () => {
+describe("SkipListOptimized", () => {
   it("can insert with insert() and check inserted with contains()", () => {
     const list = new SkipList();
 
@@ -80,7 +80,7 @@ describe("SkipList", () => {
   it("can pretty print with toPrettyString()", () => {
     const list = new SkipList();
 
-    const max = 10;
+    const max = 25;
     for (let i = 1; i < max; i++) {
       list.insert(i);
     }
@@ -88,6 +88,8 @@ describe("SkipList", () => {
     for (let i = 1; i < max; i++) {
       expect(list.contains(i)).toBe(true);
     }
+
+    console.log(list.toPrettyString());
 
     expect(list.toPrettyString()).toBeTruthy();
   });
@@ -109,17 +111,17 @@ describe("SkipList", () => {
     expect(arr).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
   });
 
-  // it("is sorted even if inserts are out of order", () => {
-  //   const list = new SkipList();
+  it("is sorted even if inserts are out of order", () => {
+    const list = new SkipList();
 
-  //   const max = 10;
-  //   // insert in reverse order
-  //   for (let i = max; i > 0; i--) {
-  //     list.insert(i);
-  //   }
+    const max = 10;
+    // insert in reverse order
+    for (let i = max; i > 0; i--) {
+      list.insert(i);
+    }
 
-  //   // check if sorted
-  //   const arr = Array.from(list);
-  //   expect(arr).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-  // });
+    // check if sorted
+    const arr = Array.from(list);
+    expect(arr).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+  });
 });

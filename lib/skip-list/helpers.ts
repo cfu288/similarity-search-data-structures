@@ -13,7 +13,7 @@ function randomTrue(probability = 0.5): boolean {
  * @param maxLevels The maximum number of levels to calculate. Default is 32
  * @returns The number of levels to be used for the new node
  */
-export function calcluateLevels(maxLevels = MAX_LEVELS): number {
+export function calculateLevels(maxLevels = MAX_LEVELS): number {
   let levels = 1;
   while (randomTrue() && levels < maxLevels) {
     levels++;
