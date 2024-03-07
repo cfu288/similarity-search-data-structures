@@ -43,7 +43,7 @@ export class NavigableSmallWorld {
       visitedNodes.add(firstNode.id);
     } else {
       // If the graph is empty, add the node and return it
-      console.log("graph is empty, adding node", nodeToAdd.id, "\n");
+      // console.log("graph is empty, adding node", nodeToAdd.id, "\n");
       this.graph.addNode(nodeToAdd);
       return this.graph.getNode(nodeToAdd);
     }
@@ -52,20 +52,20 @@ export class NavigableSmallWorld {
     while (true) {
       // Pop the node with the smallest distance from the priority queue
       const next = visitedNeighbors.peek()!;
-      console.log(
-        "Currently at node",
-        next?.node?.id,
-        "with neighbors:",
-        this.graph.getNeighborsForNode(next.node!)
-      );
-      console.log(
-        "distance between",
-        nodeToAdd.id,
-        "and current node",
-        next.node?.id,
-        "is",
-        next.distance
-      );
+      // console.log(
+      //   "Currently at node",
+      //   next?.node?.id,
+      //   "with neighbors:",
+      //   this.graph.getNeighborsForNode(next.node!)
+      // );
+      // console.log(
+      //   "distance between",
+      //   nodeToAdd.id,
+      //   "and current node",
+      //   next.node?.id,
+      //   "is",
+      //   next.distance
+      // );
 
       // Get the neighbors of the popped node
       const neighbors = this.graph.getNeighborsForNode(next.node!);
@@ -77,14 +77,14 @@ export class NavigableSmallWorld {
           const distance = calculateEuclidianDistance(nodeToAdd, neighbor);
           if (distance < next.distance) {
             allDistancesGreaterThanPopped = false;
-            console.log(
-              "new smallest distance found between",
-              nodeToAdd.id,
-              "and",
-              neighbor.id,
-              "at",
-              distance
-            );
+            // console.log(
+            //   "new smallest distance found between",
+            //   nodeToAdd.id,
+            //   "and",
+            //   neighbor.id,
+            //   "at",
+            //   distance
+            // );
           }
           visitedNeighbors.push({
             distance: distance,
@@ -117,54 +117,6 @@ export class NavigableSmallWorld {
     }
   }
 
-  // /**
-  //  * This method is used to search for a node with a given id in the graph.
-  //  * The search uses a breadth-first search algorithm to traverse the graph.
-  //  * The next neighbor to traverse is determined by the one with the smallest
-  //  * Euclidean distance to the node with the given id.
-  //  *
-
-  //  *
-  //  * @param nodeId - The id of the node to search for.
-  //  * @returns The node with the given id if it is found, otherwise undefined.
-  //  */
-  // public searchForNodeWithId(nodeId: number): GraphNode | undefined {
-  //   // Initialize a set to keep track of visited nodes
-  //   const visitedNodeIds = new Set<number>();
-
-  //   // Initialize a queue with the first node
-  //   const startNode = this.graph.getStartNode();
-  //   if (!startNode) {
-  //     return undefined; // Return undefined if there is no start node
-  //   }
-
-  //   const nodeQueue: GraphNode[] = [startNode];
-
-  //   while (nodeQueue.length > 0) {
-  //     const currentNode = nodeQueue.shift();
-
-  //     // If the current node is the node we are searching for, return it
-  //     if (currentNode && currentNode.id === nodeId) {
-  //       return currentNode;
-  //     }
-
-  //     if (currentNode) {
-  //       const neighborNodes = this.graph.getNeighborsForNode(currentNode);
-
-  //       // Add all unvisited neighbors to the queue
-  //       for (const neighbor of neighborNodes) {
-  //         if (!visitedNodeIds.has(neighbor.id)) {
-  //           visitedNodeIds.add(neighbor.id);
-  //           nodeQueue.push(neighbor);
-  //         }
-  //       }
-  //     }
-  //   }
-
-  //   // Return undefined if the node with the given id is not found
-  //   return undefined;
-  // }
-
   /**
    * This method is used to search the graph for the k nearest neighbors for a provided node.
    *
@@ -179,7 +131,96 @@ export class NavigableSmallWorld {
    * @param k
    * @returns
    */
-  public searchSimilarNodes(node: GraphNode, k: number): GraphNode[] {}
+  public searchSimilarNodes(node: GraphNode, k: number): GraphNode[] {
+    let visitedNodes: Set<number> = new Set();
+
+    // Initialize a priority queue to store nodes and their distances
+    let visitedNeighbors = new PriorityQueue<{
+      distance: number;
+      node?: GraphNode;
+    }>({
+      comparator: (a, b) => a.distance - b.distance,
+    });
+
+    // If the graph is not empty, add the first node in the graph to the priority queue
+    if (Object.entries(this.graph.neighbor_dict).length !== 0) {
+      const firstNode = Object.values(this.graph.neighbor_dict)[0]
+        .node as GraphNode;
+      visitedNeighbors.push({
+        distance: calculateEuclidianDistance(node, firstNode),
+        node: firstNode,
+      });
+      visitedNodes.add(firstNode.id);
+    } else {
+      // If the graph is empty, return an empty array
+      return [];
+    }
+
+    // Iterate through all neighbors to find the closest one
+    while (true) {
+      // Pop the node with the smallest distance from the priority queue
+      const next = visitedNeighbors.pop();
+      console.log(
+        "Currently at node",
+        next?.node?.id,
+        "with neighbors:",
+        this.graph.getNeighborsForNode(next?.node!)
+      );
+      if (!next) {
+        break;
+      }
+
+      // Get the neighbors of the popped node
+      const neighbors = this.graph.getNeighborsForNode(next.node!);
+
+      // For each neighbor, calculate the Euclidean distance to the new node and add it to the priority queue
+      let allDistancesGreaterThanPopped = true;
+      for (const neighbor of neighbors) {
+        if (!visitedNodes.has(neighbor.id)) {
+          const distance = calculateEuclidianDistance(node, neighbor);
+          console.log(
+            "distance between",
+            node.id,
+            "and current node",
+            neighbor.id,
+            "is",
+            distance
+          );
+          if (distance < next.distance) {
+            console.log(
+              "new smallest distance found between",
+              node.id,
+              "and",
+              neighbor.id,
+              "at",
+              distance
+            );
+            allDistancesGreaterThanPopped = false;
+          }
+          visitedNeighbors.push({
+            distance: distance,
+            node: neighbor,
+          });
+          visitedNodes.add(neighbor.id);
+        }
+      }
+      if (allDistancesGreaterThanPopped) {
+        console.log(
+          "all distances with current neighbors greater than popped, stopping search at",
+          next.node?.id
+        );
+
+        // Include the current closest node in the list of k closest neighbors
+        const kClosestNeighbors = [next, ...visitedNeighbors.popN(k - 1)];
+        console.log(
+          "closest nodes with distances",
+          kClosestNeighbors.map((i) => JSON.stringify(i)).join(", ")
+        );
+        return kClosestNeighbors.map((i) => i.node as GraphNode);
+      }
+    }
+    return [];
+  }
 
   toString() {
     return JSON.stringify(this.graph.neighbor_dict, null, 2);
@@ -202,5 +243,7 @@ graph.addNode(node4);
 graph.addNode(node5);
 graph.addNode(node6);
 graph.addNode(node7);
+
+console.log(graph.searchSimilarNodes(new GraphNode(8, [10, 5]), 4));
 
 console.log(graph.graph.toPrettyString());
