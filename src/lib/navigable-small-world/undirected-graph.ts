@@ -41,6 +41,12 @@ export class UndirectedGraph {
     return this.neighbor_dict[node.id]?.node;
   }
 
+  public getNodes(): GraphNode[] {
+    return Object.keys(this.neighbor_dict).map((key) => {
+      return this.neighbor_dict[key].node;
+    });
+  }
+
   public getNodeById(id: number): GraphNode {
     return this.neighbor_dict[id]?.node;
   }

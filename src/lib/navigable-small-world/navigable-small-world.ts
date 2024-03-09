@@ -222,6 +222,67 @@ export class NavigableSmallWorld {
     return [];
   }
 
+  public *searchSimilarNodesGenerator(node: GraphNode, k: number) {
+    let visitedNodes: Set<number> = new Set();
+
+    // Initialize a priority queue to store nodes and their distances
+    let visitedNeighbors = new PriorityQueue<{
+      distance: number;
+      node?: GraphNode;
+    }>({
+      comparator: (a, b) => a.distance - b.distance,
+    });
+
+    // If the graph is not empty, add the first node in the graph to the priority queue
+    if (Object.entries(this.graph.neighbor_dict).length !== 0) {
+      const firstNode = Object.values(this.graph.neighbor_dict)[0]
+        .node as GraphNode;
+      visitedNeighbors.push({
+        distance: calculateEuclidianDistance(node, firstNode),
+        node: firstNode,
+      });
+      visitedNodes.add(firstNode.id);
+    } else {
+      // If the graph is empty, return an empty array
+      return [];
+    }
+
+    // Iterate through all neighbors to find the closest one
+    while (true) {
+      // Pop the node with the smallest distance from the priority queue
+      const next = visitedNeighbors.pop();
+      yield next?.node; // Yield the current node being traversed
+
+      if (!next) {
+        break;
+      }
+
+      // Get the neighbors of the popped node
+      const neighbors = this.graph.getNeighborsForNode(next.node!);
+
+      // For each neighbor, calculate the Euclidean distance to the new node and add it to the priority queue
+      let allDistancesGreaterThanPopped = true;
+      for (const neighbor of neighbors) {
+        if (!visitedNodes.has(neighbor.id)) {
+          const distance = calculateEuclidianDistance(node, neighbor);
+          if (distance < next.distance) {
+            allDistancesGreaterThanPopped = false;
+          }
+          visitedNeighbors.push({
+            distance: distance,
+            node: neighbor,
+          });
+          visitedNodes.add(neighbor.id);
+        }
+      }
+      if (allDistancesGreaterThanPopped) {
+        // Include the current closest node in the list of k closest neighbors
+        const kClosestNeighbors = [next, ...visitedNeighbors.popN(k - 1)];
+        return kClosestNeighbors.map((i) => i.node as GraphNode);
+      }
+    }
+  }
+
   toString() {
     return JSON.stringify(this.graph.neighbor_dict, null, 2);
   }
