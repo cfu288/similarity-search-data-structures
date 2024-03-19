@@ -1,0 +1,64 @@
+---
+title: "A Visual Guide to Higher Navigational Small World Graphs (HNSW) and How It Makes Vector Search Faster"
+description: "Understanding HNSW by implementing a toy example from scratch"
+pubDate: "March 20 2024"
+heroImage: "/blog-placeholder-5.jpg"
+---
+
+import { DisplayNSWGraph } from "../../components/DisplayNSWGraph";
+
+<article className="prose lg:prose-xl">
+
+<DisplayNSWGraph client:load />
+
+There has been a recent increase in interest in vector databases, primarily due to to the rise of Generative AI and the role that vector databases play
+in building Retrieval-Augmented Generation (RAG) systems. The role of a vector databases is to _enable fast similarity search_
+across a large number of documents. In a RAG system, vector databases are used to store and return relevant documents that can help a LLM answer a specific prompt.
+This can enable a Large Language Model (LLM) to answer questions on things that it has not been trained on, or enable LLMs to provide more accurate and relevant responses.
+RAG can help reduce hallucinations and improve the quality of the generated responses by providing relevant context to the LLM model.
+
+The problem of similarity search is not new, and it has been a topic of interest in the field of information retrieval for a long time.
+This article will focus on the problem of similarity/vector search and how recent advancements in Approximate Nearest Neighbor (ANN)
+algorithms have improved the speed of similarity search in vector databases. More specifically, we'll focus on one such ANN algorithm called HNSW (Hierarchical Navigable Small World), which has been implemented in several vector databases including PGVector, and walk through building a toy implementation of HNSW from scratch.
+
+If you find this article interesting and would like to see similar articles that dive through these other topics not touched in this post, let me know!
+
+## Prerequisites
+
+A basic understanding of the following topics would be helpful for this article:
+
+- Basic data structures (Arrays, Linked Lists, Trees)
+- Algorithms (Sorting, Searching)
+- Time complexity and Big O notation
+- Programming concepts (Classes, Functions, Variables)
+
+## The problem of Similarity Search
+
+- Definition and purpose
+- Implementation methods, including nearest neighbor search (KNN)
+- Distance metrics: Euclidean distance and Cosine similarity
+
+3. Vector Similarity Search
+
+- Understanding kNN
+
+4. Limitations of Traditional Similarity Search (Is kNN all you need?)
+
+- The curse of dimensionality and its impact on similarity search
+
+5. Introduction to HNSW
+
+- What is HNSW and why it's needed
+- How HNSW improves upon kNN methods
+  - ANN algorithms and their role in vector search
+- Advantages of HNSW for vector database search
+- Comparison with other search methods
+
+7. Implementing HNSW from Scratch
+
+- Understanding and implementing Skip List
+- Understanding and implementing NSW
+- Understanding and implementing HNSW
+- Testing and analyzing the performance of our HNSW implementation
+
+</article>

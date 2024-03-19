@@ -287,24 +287,3 @@ export class NavigableSmallWorld {
     return JSON.stringify(this.graph.neighbor_dict, null, 2);
   }
 }
-
-// generate example graph
-const graph = new NavigableSmallWorld({ k: 2 });
-const node1 = new GraphNode(1, [1, 1]);
-const node2 = new GraphNode(2, [2, 2]);
-const node3 = new GraphNode(3, [3, 3]);
-const node4 = new GraphNode(4, [1, 4]);
-const node5 = new GraphNode(5, [2, 5]);
-const node6 = new GraphNode(6, [10, 5]);
-const node7 = new GraphNode(7, [1, 2]);
-graph.addNode(node1);
-graph.addNode(node2);
-graph.addNode(node3);
-graph.addNode(node4);
-graph.addNode(node5);
-graph.addNode(node6);
-graph.addNode(node7);
-
-console.log(graph.searchSimilarNodes(new GraphNode(8, [10, 5]), 4));
-
-console.log(graph.graph.toPrettyString());

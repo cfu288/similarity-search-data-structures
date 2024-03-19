@@ -13,6 +13,33 @@ export class UndirectedGraph {
     };
   } = {};
 
+  // serializes neighbor_dict to a string, later can be used to deserialize it back to a graph
+  // GraphNodes can be serialized and deserialized using their own methods serialize() and deserialize()
+  public serialize(): string {
+    let serialized: Record<string, {node: string, neighbors: string[]}> = {};
+    for (const key in this.neighbor_dict) {
+      serialized[key] = {
+        node: this.neighbor_dict[key].node.serialize(),
+        neighbors: this.neighbor_dict[key].neighbors.map((n) => n.serialize()),
+      };
+    }
+    return JSON.stringify(serialized);
+  }
+
+  // deserializes a string back to a graph
+  public static deserialize(jsonString: string): UndirectedGraph {
+    let obj = JSON.parse(jsonString);
+    let graph = new UndirectedGraph();
+    for (const key in obj) {
+      let node = GraphNode.deserialize(obj[key].node);
+      graph.neighbor_dict[key] = {
+        node: node,
+        neighbors: obj[key].neighbors.map((n: string) => GraphNode.deserialize(n)),
+      };
+    }
+    return graph;
+  }
+
   public addNode(node: GraphNode): void {
     if (!(node.id in this.neighbor_dict)) {
       this.neighbor_dict[node.id] = {
