@@ -34,6 +34,7 @@ export class PriorityQueue<T> {
     let index = this.heap.length - 1;
     while (
       index > 0 &&
+      this.comparator &&
       this.comparator(this.heap[this.parentIndex(index)], this.heap[index]) > 0
     ) {
       this.swap(this.parentIndex(index), index);
@@ -50,6 +51,7 @@ export class PriorityQueue<T> {
       let smallerChildIndex = this.leftChildIndex(index);
       if (
         this.rightChildIndex(index) < this.heap.length &&
+        this.comparator &&
         this.comparator(
           this.heap[this.rightChildIndex(index)],
           this.heap[this.leftChildIndex(index)]
@@ -59,6 +61,7 @@ export class PriorityQueue<T> {
       }
 
       if (
+        this.comparator &&
         this.comparator(this.heap[smallerChildIndex], this.heap[index]) >= 0
       ) {
         break;

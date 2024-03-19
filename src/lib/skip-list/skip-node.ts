@@ -1,4 +1,4 @@
-import { Comparable } from "./comparable";
+import type { Comparable } from "./comparable";
 
 /**
  * Nodes are of variable height, containing between 1 and O(log n) next pointers.

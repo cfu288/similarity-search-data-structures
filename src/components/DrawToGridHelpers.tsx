@@ -12,18 +12,19 @@ export function drawNode(
   xScale: ScaleLinear<number, number, never>,
   yScale: ScaleLinear<number, number, never>
 ) {
-  let group = svg.select(`g#n${node.id}`);
+  let group = svg.select<SVGSVGElement>(`g#n${node.id}`);
   if (group.empty()) {
-    group = svg.append("g");
+    group = svg.append<SVGSVGElement>("g");
     group.attr("id", `n${node.id}`);
   }
 
   group
     .selectAll("g")
-    .data([node], (d) => d.id)
+    .data<GraphNode>([node], (d) => (d as GraphNode).id)
     .join(
       (enter) => {
         const g = enter.append("g");
+
         g.append("circle")
           .attr("cx", (d) => xScale(d.vector[0]))
           .attr("cy", (d) => yScale(d.vector[1]))
@@ -47,6 +48,8 @@ export function drawNode(
           .attr("dominant-baseline", "central")
           .style("fill", "black")
           .text(() => `(${node.vector[0]}, ${node.vector[1]})`); // print the node's coordinates
+
+        return g;
       },
       (update) => {
         update
@@ -61,6 +64,8 @@ export function drawNode(
           .attr("x", (d) => xScale(d.vector[0]))
           .attr("y", (d) => yScale(d.vector[1]))
           .text((d) => d.id);
+
+        return update;
       },
       (exit) => exit.remove()
     );
@@ -113,6 +118,7 @@ export function drawLinesToNeighbors(
     });
   });
 }
+
 export function drawGrid(
   svg: Selection<SVGSVGElement | null, unknown, null, undefined>,
   xScale: ScaleLinear<number, number, never>,
@@ -168,6 +174,7 @@ export function drawGrid(
     .attr("text-anchor", "middle")
     .text((d) => d);
 }
+
 export function drawNextStepInSearch(
   svg: Selection<SVGSVGElement | null, unknown, null, undefined>,
   searchNode: GraphNode,
@@ -249,7 +256,7 @@ export function drawNextStepInSearch(
         distances.forEach(({ id, distance, lineMiddleX, lineMiddleY }) => {
           svg
             .selectAll(`text#gt${searchNode.id}-${id}`)
-            .data([id], (d) => d)
+            .data([id], (d: unknown) => d as string)
             .join(
               (enter) =>
                 enter

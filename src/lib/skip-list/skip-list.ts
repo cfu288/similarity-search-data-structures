@@ -1,4 +1,4 @@
-import { Comparable } from "./comparable";
+import type { Comparable } from "./comparable";
 import { MAX_LEVELS } from "./constants";
 import { calculateLevels } from "./helpers";
 import { SkipNode } from "./skip-node";
@@ -317,7 +317,7 @@ export class SkipList<T extends Comparable> {
    * // 3
    * ```
    */
-  [Symbol.iterator] = function* () {
+  [Symbol.iterator] = function* (this: SkipList<T>) {
     let current = this.headerNode.next[0];
     while (current) {
       yield current.value;
