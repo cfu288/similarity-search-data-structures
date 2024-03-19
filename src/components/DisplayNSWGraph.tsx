@@ -137,69 +137,81 @@ export function DisplayNSWGraph() {
           className="mx-auto border-2 border-black"
         ></svg>
       </div>
-      <div className=" flex flex-row justify-center align-middle gap-4 mt-4">
-        {!searchNode && (
-          <button
-            className={`${
-              mode === "ADD_GRAPH_NODE"
-                ? "bg-blue-500 hover:bg-blue-700"
-                : "bg-orange-500 hover:bg-orange-700"
-            } text-white font-bold py-2 px-4 rounded`}
-            onClick={() => {
-              setMode((m) =>
-                m === "ADD_GRAPH_NODE" ? "ADD_SEARCH_NODE" : "ADD_GRAPH_NODE"
-              );
-            }}
-          >
-            {mode === "ADD_GRAPH_NODE" ? "Add Graph Node" : "Add Search Node"}
-          </button>
+      <div className="flex flex-col justify-center align-middle text-center">
+        {mode === "ADD_GRAPH_NODE" ? (
+          <div>Click the graph to add a new node to the graph</div>
+        ) : (
+          <div>
+            Click on the graph to add a node at that location and start
+            similarity search
+          </div>
         )}
-        <button
-          className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-          onClick={() => {
-            smallWorldRef.current = new NavigableSmallWorld({ k: 1 });
-            select(svgElementRef.current).selectAll("svg > *").remove();
-            const svg = select(svgElementRef.current);
-            drawGrid(svg, xScale, yScale);
-            setGeneratedVectors(new Set());
-            setNodeCount(0);
-            setSearchNode(undefined);
-            setMode("ADD_GRAPH_NODE");
-            generatorFunctionRef.current = undefined;
-          }}
-        >
-          Reset
-        </button>
-        <form
-          className="flex flex-col gap-2"
-          onSubmit={(e) => {
-            e.preventDefault();
-          }}
-        >
-          {searchNode && (
+        <div className="flex flex-row gap-4 justify-center align-middle">
+          {!searchNode && (
             <button
-              className="bg-green-500 hover:bg-green-700 text-white font-bold px-2 py-1 rounded ml-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className={`${
+                mode === "ADD_GRAPH_NODE"
+                  ? "bg-blue-500 hover:bg-blue-700"
+                  : "bg-orange-500 hover:bg-orange-700"
+              } text-white font-bold py-2 px-4 rounded`}
               onClick={() => {
-                const generator = generatorFunctionRef.current;
-
-                const result = generator?.next();
-                const svg = select(svgElementRef.current);
-                drawNextStepInSearch(
-                  svg,
-                  searchNode,
-                  result,
-                  setSearchNode,
-                  svgElementRef,
-                  xScale,
-                  yScale,
-                  smallWorldRef
+                setMode((m) =>
+                  m === "ADD_GRAPH_NODE" ? "ADD_SEARCH_NODE" : "ADD_GRAPH_NODE"
                 );
               }}
             >
-              Next
+              {mode === "ADD_GRAPH_NODE"
+                ? "Currently adding Graph Nodes"
+                : "Currently adding a node to start similarity search"}
             </button>
           )}
-        </form>
+          <button
+            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+            onClick={() => {
+              smallWorldRef.current = new NavigableSmallWorld({ k: 1 });
+              select(svgElementRef.current).selectAll("svg > *").remove();
+              const svg = select(svgElementRef.current);
+              drawGrid(svg, xScale, yScale);
+              setGeneratedVectors(new Set());
+              setNodeCount(0);
+              setSearchNode(undefined);
+              setMode("ADD_GRAPH_NODE");
+              generatorFunctionRef.current = undefined;
+            }}
+          >
+            Reset
+          </button>
+          <form
+            className="flex flex-col gap-2"
+            onSubmit={(e) => {
+              e.preventDefault();
+            }}
+          >
+            {searchNode && (
+              <button
+                className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded disabled:bg-gray-400 disabled:cursor-not-allowed"
+                onClick={() => {
+                  const generator = generatorFunctionRef.current;
+
+                  const result = generator?.next();
+                  const svg = select(svgElementRef.current);
+                  drawNextStepInSearch(
+                    svg,
+                    searchNode,
+                    result,
+                    setSearchNode,
+                    svgElementRef,
+                    xScale,
+                    yScale,
+                    smallWorldRef
+                  );
+                }}
+              >
+                Next
+              </button>
+            )}
+          </form>
+        </div>
       </div>
     </div>
   );
