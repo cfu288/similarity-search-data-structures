@@ -19,7 +19,7 @@ RAG can help reduce hallucinations and improve the quality of the generated resp
 
 The problem of similarity search is not new, and it has been a topic of interest in the field of information retrieval for a long time.
 This article will focus on the problem of similarity/vector search and how recent advancements in Approximate Nearest Neighbor (ANN)
-algorithms have improved the speed of similarity search in vector databases. More specifically, we'll focus on one such ANN algorithm called HNSW (Hierarchical Navigable Small World), which has been implemented in several vector databases including PGVector, and walk through building a toy implementation of HNSW from scratch.
+algorithms have improved the speed of similarity search in vector databases. More specifically, we'll focus on one such ANN algorithm called HNSW (Hierarchical Navigable Small World), which has been implemented in several vector databases/indexes (including PGVector, Faiss), and walk through building a toy implementation of HNSW from scratch.
 
 If you find this article interesting and would like to see similar articles that dive through these other topics not touched in this post, let me know!
 
@@ -32,21 +32,61 @@ A basic understanding of the following topics would be helpful for this article:
 - Time complexity and Big O notation
 - Programming concepts (Classes, Functions, Variables)
 
-## The problem of Similarity Search
+## The Problem of Vector Search
 
-- Definition and purpose
-- Implementation methods, including nearest neighbor search (KNN)
-- Distance metrics: Euclidean distance and Cosine similarity
+The concept of similarity search is simple: given a vector, can we find the most similar vectors from a set of vectors?
 
-3. Vector Similarity Search
+But first, what even is a vector?
 
-- Understanding kNN
+A vector is a mathematical object that has both magnitude and direction. In the context of vector search, a vector is a list of numbers that represent a point in a multi-dimensional space.
 
-4. Limitations of Traditional Similarity Search (Is kNN all you need?)
+For example, a 2D vector can be represented as `[x, y]`, and a 3D vector can be represented as `[x, y, z]`. In the context of vector databases, a vector is a list of numbers that represent a document or an image.
+
+Vectors can be used to represent documents, images, and other types of data. Ergo, vector search can be a way to implement similarity search and used to find similar documents, images, and other types of data.
+
+For instance, a document can be depicted as a numerical vector, with each number signifying the occurrence frequency of a specific word in the document. Lately, generative AI applications have started to produce vectors from a LLM embedding of a document.
+
+There are many ways we can generate vectors from documents, and the choice of method depends on the specific use case (out of scope for this article).
+
+But once we actually have the vectors, how do we use these vectors to find similar documents?
+
+## Hey Neighbour, Can I Borrow Some Sugar?
+
+The concept of similarity search with vectors is simple. If we plot the vectors in a multi-dimensional space, similar vectors should cluster togetner and be in close proximity. This makes sense intuitively, similar things should be close together. If we wanted to find the most similar vectors to a given vector, we could simply calculate the distance between the given vector and all the other vectors and return the vectors with the smallest distance. Simple enough, right?
+
+This is essentially what the k-Nearest Neighbors (kNN) algorithm does. It calculates the distance between the given vector and all the other vectors and returns the k vectors with the smallest distance.
+
+### How do we measure distance between vectors?
+
+There are various methods to calculate vector distances. The simplest is Euclidean distance, the straight-line distance in multi-dimensional space. However, in high-dimensional spaces, it's less effective due to the "curse of dimensionality", where noise can overshadow useful values. This issue can be partially mitigated with normalization and dimension weighting.
+
+Another common distance metric is the Cosine similarity, which measures the cosine of the angle between two vectors.
+
+In our examples below, we use Euclidean distance for simplicity.
+
+## Is kNN All You Need? (Limitations of Naive Similarity Search)
 
 - The curse of dimensionality and its impact on similarity search
+- Naive kNN brute force
+  - n: number of points in the training dataset
+  - d: data dimensionality
+  - k: number of neighbors that we consider for voting
+  - Time complexity of finding one nearest neighbor: O(n \* d)
+  - Time complexity of finding k nearest neighbors: O(n \* d \* k)
 
-5. Introduction to HNSW
+Despite the simplicity and intuitiveness of the k-Nearest Neighbors (kNN) algorithm, it has its limitations - primarily due to poor performance in high-dimensional and large-scale datasets.
+
+To touch on algorithmic complexity in the naive kNN brute force approach:
+
+- 'n' represents the number of points in the training dataset
+- 'd' stands for data dimensionality
+- 'k' is the number of neighbors considered for voting. The time complexity for finding
+  one nearest neighbor is O(n _ d), and for finding k nearest neighbors, it is O(n _ d \* k). This means the algorithm
+  essentially runs in linear time, which can be prohibitively slow for large datasets.
+
+What strategies can we utilize to make similarity search faster?
+
+## Introduction to HNSW
 
 - What is HNSW and why it's needed
 - How HNSW improves upon kNN methods

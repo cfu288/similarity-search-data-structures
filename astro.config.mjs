@@ -7,7 +7,6 @@ import sitemap from "@astrojs/sitemap";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://cfu288.github.io",
-  base: "/similarity-search-data-structures/",
+  site: "https://inflammaso.me",
   integrations: [mdx(), react(), tailwind(), sitemap()],
 });

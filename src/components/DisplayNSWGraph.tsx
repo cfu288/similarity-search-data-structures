@@ -78,10 +78,7 @@ export function DisplayNSWGraph() {
         const svg = select(svgElementRef.current);
 
         // Remove previous search node
-        if (searchNode) {
-          svg.select(`#sn${searchNode.id}`).remove();
-          svg.selectAll(`line[id^='gl${searchNode.id}-']`).remove();
-        }
+        svg.selectAll("g[id^='sn']").remove();
 
         // Plot new search mode
         svg.selectAll("g > circle").style("fill", "transparent");
