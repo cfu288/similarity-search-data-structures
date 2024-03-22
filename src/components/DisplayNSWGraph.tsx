@@ -25,9 +25,9 @@ export function DisplayNSWGraph() {
     | undefined
   >();
   const [generatedVectors, setGeneratedVectors] = useState(new Set());
-  const [mode, setMode] = useState<"ADD_GRAPH_NODE" | "ADD_SEARCH_NODE">(
-    "ADD_GRAPH_NODE"
-  );
+  const [mode, setMode] = useState<
+    "ADD_GRAPH_NODE" | "ADD_SEARCH_NODE" | "SEARCHING" | "SEARCH_COMPLETE"
+  >("ADD_GRAPH_NODE");
 
   const addNode = useCallback(
     (x: number, y: number) => {
@@ -65,7 +65,7 @@ export function DisplayNSWGraph() {
       // check mode
       if (mode === "ADD_GRAPH_NODE") {
         addNode(x, y);
-      } else {
+      } else if (mode === "ADD_SEARCH_NODE" || mode === "SEARCH_COMPLETE") {
         const newNode = new GraphNode(nodeCount, [x, y]);
         setSearchNode(newNode);
 
@@ -79,9 +79,12 @@ export function DisplayNSWGraph() {
 
         // Remove previous search node
         svg.selectAll("g[id^='sn']").remove();
-
+        // Reset all widths to 1 on all nodes
+        svg
+          .selectAll("g > circle")
+          .style("fill", "transparent")
+          .style("stroke-width", 1);
         // Plot new search mode
-        svg.selectAll("g > circle").style("fill", "transparent");
 
         const group = svg.append("g");
         group.attr("id", `sn${newNode.id}`);
@@ -101,6 +104,8 @@ export function DisplayNSWGraph() {
           .attr("dominant-baseline", "central")
           .style("fill", "black")
           .text(`(${newNode.vector[0]}, ${newNode.vector[1]})`); // print the node's coordinates
+
+        setMode("SEARCHING");
       }
     });
   }, [setNodeCount, addNode, xScale, yScale]);
@@ -137,11 +142,15 @@ export function DisplayNSWGraph() {
       <div className="flex flex-col justify-center align-middle text-center">
         {mode === "ADD_GRAPH_NODE" ? (
           <div>Click the graph to add a new node to the graph</div>
-        ) : (
+        ) : mode === "ADD_SEARCH_NODE" ? (
           <div>
             Click on the graph to add a node at that location and start
             similarity search
           </div>
+        ) : mode === "SEARCH_COMPLETE" ? (
+          <div>Search complete</div>
+        ) : (
+          <div>Click next to continue the search</div>
         )}
         <div className="flex flex-row gap-4 justify-center align-middle">
           {!searchNode && (
@@ -184,7 +193,7 @@ export function DisplayNSWGraph() {
               e.preventDefault();
             }}
           >
-            {searchNode && (
+            {mode === "SEARCHING" && searchNode && (
               <button
                 className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded disabled:bg-gray-400 disabled:cursor-not-allowed"
                 onClick={() => {
@@ -202,6 +211,10 @@ export function DisplayNSWGraph() {
                     yScale,
                     smallWorldRef
                   );
+                  if (result?.done) {
+                    setMode("SEARCH_COMPLETE");
+                    setSearchNode(undefined);
+                  }
                 }}
               >
                 Next

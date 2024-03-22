@@ -70,6 +70,14 @@ export function drawNode(
       (exit) => exit.remove()
     );
 }
+
+/**
+ * This function draws lines from a node to its neighbors with the distance
+ * @param svg
+ * @param node
+ * @param neighbors
+ * @param xScale
+ * @param yScal */
 export function drawLinesToNeighbors(
   svg: Selection<SVGSVGElement | null, unknown, null, undefined>,
   node: GraphNode,
@@ -151,6 +159,7 @@ export function drawGrid(
     .attr("y1", 0)
     .attr("y2", 500)
     .attr("stroke", "grey")
+    .attr("opacity", 0.5)
     .attr("stroke-width", 0.5);
 
   yGridLines
@@ -162,6 +171,7 @@ export function drawGrid(
     .attr("y1", (d) => yScale(d))
     .attr("y2", (d) => yScale(d))
     .attr("stroke", "grey")
+    .attr("opacity", 0.5)
     .attr("stroke-width", 0.5);
 
   xGridLines
@@ -199,14 +209,16 @@ export function drawNextStepInSearch(
   group.select("circle").style("fill", "blue");
 
   if (result?.done) {
-    setSearchNode(undefined);
     //get the return value of the generator
     const nodes = result?.value;
-    console.log("nodes", nodes);
     // highlight the nodes in yellow
     nodes?.forEach((node) => {
       const group = svg.select(`g#n${node.id}`);
-      group.select("circle").style("fill", "yellow");
+      group
+        .select("circle")
+        .style("fill", "yellow")
+        .style("stroke-width", 1)
+        .attr("r", 13);
     });
   } else {
     const node = result?.value;
@@ -216,28 +228,10 @@ export function drawNextStepInSearch(
       const svg = select(svgElementRef.current);
       const group = svg.append("g");
       group.attr("id", `n${node.id}`);
-      group
-        .append("circle")
-        .attr("cx", xScale(node.vector[0]))
-        .attr("cy", yScale(node.vector[1]))
-        .attr("r", 10)
-        .style("stroke", "black")
-        .style("fill", "green");
 
-      // get neighbors of the node, we're going to draw lines to them from the current search node in green
+      // get neighbors of the node, calculate distances and draw lines to them from the current search node
       const neighbors = smallWorldRef.current?.graph.getNeighborsForNode(node);
       if (neighbors) {
-        [...neighbors, node]?.forEach((neighbor) => {
-          svg
-            .append("line")
-            .attr("id", `gl${searchNode.id}-${neighbor.id}`)
-            .attr("x1", xScale(searchNode.vector[0]))
-            .attr("y1", yScale(searchNode.vector[1]))
-            .attr("x2", xScale(neighbor.vector[0]))
-            .attr("y2", yScale(neighbor.vector[1]))
-            .style("stroke", "green");
-        });
-
         // get the distance to the search node and its neighbors
         const distances = [node, ...neighbors].map((neighbor) => {
           const distance = calculateEuclidianDistance(searchNode, neighbor);
@@ -250,32 +244,66 @@ export function drawNextStepInSearch(
             distance,
             lineMiddleX,
             lineMiddleY,
+            neighbor,
           };
         });
 
-        distances.forEach(({ id, distance, lineMiddleX, lineMiddleY }) => {
-          svg
-            .selectAll(`text#gt${searchNode.id}-${id}`)
-            .data([id], (d: unknown) => d as string)
-            .join(
-              (enter) =>
-                enter
-                  .append("text")
-                  .attr("id", `gt${searchNode.id}-${id}`)
-                  .attr("x", lineMiddleX)
-                  .attr("y", lineMiddleY)
-                  .attr("text-anchor", "middle")
-                  .attr("dominant-baseline", "central")
-                  .style("fill", "black")
-                  .text(distance.toFixed(2)),
-              (update) =>
-                update
-                  .attr("x", lineMiddleX)
-                  .attr("y", lineMiddleY)
-                  .text(distance.toFixed(2)),
-              (exit) => exit.remove()
-            );
-        });
+        // find the node with the shortest distance
+        const shortestDistanceNode = distances.reduce((prev, curr) =>
+          prev.distance < curr.distance ? prev : curr
+        );
+
+        distances.forEach(
+          ({ id, distance, lineMiddleX, lineMiddleY, neighbor }) => {
+            // draw lines to neighbors from the current search node
+            // the line to the node with the shortest distance is bold
+
+            group
+              .append("circle")
+              .attr("cx", xScale(node.vector[0]))
+              .attr("cy", yScale(node.vector[1]))
+              .attr("r", 10)
+              .style("stroke", "black")
+              .style("stroke-width", id === shortestDistanceNode.id ? "3" : "1")
+              .style("fill", "green");
+
+            svg
+              .append("line")
+              .attr("id", `gl${searchNode.id}-${id}`)
+              .attr("x1", xScale(searchNode.vector[0]))
+              .attr("y1", yScale(searchNode.vector[1]))
+              .attr("x2", xScale(neighbor.vector[0]))
+              .attr("y2", yScale(neighbor.vector[1]))
+              .style("stroke", "green")
+              .style(
+                "stroke-width",
+                id === shortestDistanceNode.id ? "3" : "1"
+              );
+
+            // display the distances
+            svg
+              .selectAll(`text#gt${searchNode.id}-${id}`)
+              .data([id], (d: unknown) => d as string)
+              .join(
+                (enter) =>
+                  enter
+                    .append("text")
+                    .attr("id", `gt${searchNode.id}-${id}`)
+                    .attr("x", lineMiddleX)
+                    .attr("y", lineMiddleY)
+                    .attr("text-anchor", "middle")
+                    .attr("dominant-baseline", "central")
+                    .style("fill", "black")
+                    .text(distance.toFixed(2)),
+                (update) =>
+                  update
+                    .attr("x", lineMiddleX)
+                    .attr("y", lineMiddleY)
+                    .text(distance.toFixed(2)),
+                (exit) => exit.remove()
+              );
+          }
+        );
       }
     }
   }
