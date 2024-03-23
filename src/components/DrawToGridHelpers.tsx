@@ -140,12 +140,20 @@ export function drawGrid(
     .append("g")
     .attr("transform", "translate(0, 500)")
     .attr("id", "grid");
+
   const yAxis = svg
     .append("g")
     .attr("transform", "translate(0, 0)")
-    .attr("id", "grid");
-  const xGridLines = svg.append("g").attr("id", "grid");
-  const yGridLines = svg.append("g").attr("id", "grid");
+    .attr("id", "grid")
+    .style("stroke-dasharray", "5,5");
+  const xGridLines = svg
+    .append("g")
+    .attr("id", "grid")
+    .style("stroke-dasharray", "5,5");
+  const yGridLines = svg
+    .append("g")
+    .attr("id", "grid")
+    .style("stroke-dasharray", "5,5");
 
   xAxis.call(axisBottom(xScale));
   yAxis.call(axisLeft(yScale));
@@ -158,9 +166,9 @@ export function drawGrid(
     .attr("x2", (d) => xScale(d))
     .attr("y1", 0)
     .attr("y2", 500)
-    .attr("stroke", "grey")
+    .attr("stroke", (d) => (d === 0 ? "black" : "grey"))
     .attr("opacity", 0.5)
-    .attr("stroke-width", 0.5);
+    .attr("stroke-width", (d) => (d === 0 ? 2 : 0.5));
 
   yGridLines
     .selectAll("line")
@@ -170,9 +178,9 @@ export function drawGrid(
     .attr("x2", 500)
     .attr("y1", (d) => yScale(d))
     .attr("y2", (d) => yScale(d))
-    .attr("stroke", "grey")
+    .attr("stroke", (d) => (d === 0 ? "black" : "grey"))
     .attr("opacity", 0.5)
-    .attr("stroke-width", 0.5);
+    .attr("stroke-width", (d) => (d === 0 ? 2 : 0.5));
 
   xGridLines
     .selectAll("text")
@@ -183,6 +191,14 @@ export function drawGrid(
     .attr("dy", "-0.5em")
     .attr("text-anchor", "middle")
     .text((d) => d);
+
+  svg
+    .append("text")
+    .attr("x", xScale(0))
+    .attr("y", yScale(0))
+    .attr("dy", "1em")
+    .attr("text-anchor", "middle")
+    .text("(0, 0)");
 }
 
 export function drawNextStepInSearch(
@@ -204,9 +220,31 @@ export function drawNextStepInSearch(
   svg.selectAll(`line[id^='gl${searchNode.id}-']`).remove();
   // remove all text that are green with id gt<searchNode.id>-<neighbor.id>
   svg.selectAll(`text[id^='gt${searchNode.id}-']`).remove();
-  // mark the search node in blue
-  const group = svg.select(`g#sn${searchNode.id}`);
-  group.select("circle").style("fill", "blue");
+  // check if the search node exists
+  let group = svg.select(`g#sn${searchNode.id}`);
+  if (!group.empty()) {
+    // if it exists, fill it blue
+    group.select("circle").style("fill", "blue");
+  } else {
+    // if it doesn't exist, draw it
+    group = svg.append("g").attr("id", `sn${searchNode.id}`);
+    group
+      .append("circle")
+      .attr("cx", xScale(searchNode.vector[0]))
+      .attr("cy", yScale(searchNode.vector[1]))
+      .attr("r", 10)
+      .style("stroke", "black")
+      .style("fill", "blue");
+
+    group
+      .append("text")
+      .attr("x", xScale(searchNode.vector[0]))
+      .attr("y", yScale(searchNode.vector[1]) + 20) // position the text 15px below the node
+      .attr("text-anchor", "middle")
+      .attr("dominant-baseline", "central")
+      .style("fill", "black")
+      .text(`(${searchNode.vector[0]}, ${searchNode.vector[1]})`); // print the node's coordinates
+  }
 
   if (result?.done) {
     //get the return value of the generator

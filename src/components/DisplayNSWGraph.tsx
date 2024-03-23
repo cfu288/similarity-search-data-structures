@@ -11,7 +11,7 @@ import {
   drawNextStepInSearch,
 } from "./DrawToGridHelpers";
 
-export function DisplayNSWGraph() {
+export function DisplayNSWGraph({ autoRun = false }: { autoRun?: boolean }) {
   const smallWorldRef = useRef<NavigableSmallWorld | undefined>();
   const [nodeCount, setNodeCount] = useState(0);
   const svgElementRef = useRef<SVGSVGElement | null>(null);
@@ -29,7 +29,7 @@ export function DisplayNSWGraph() {
     "ADD_GRAPH_NODE" | "ADD_SEARCH_NODE" | "SEARCHING" | "SEARCH_COMPLETE"
   >("ADD_GRAPH_NODE");
   const [result, setResult] = useState<GraphNode[] | undefined>(undefined);
-
+  const [isRunning, setIsRunning] = useState(autoRun);
   const addNode = useCallback(
     (x: number, y: number) => {
       const newGV = new Set(generatedVectors);
@@ -42,6 +42,99 @@ export function DisplayNSWGraph() {
     },
     [setNodeCount, nodeCount, setGeneratedVectors, generatedVectors]
   );
+
+  useEffect(() => {
+    if (isRunning) {
+      const intervalId = setInterval(() => {
+        if (nodeCount < 8 && mode === "ADD_GRAPH_NODE") {
+          // Add 10 random nodes
+          const x = Math.floor(Math.random() * 11);
+          const y = Math.floor(Math.random() * 11);
+          addNode(x, y);
+          return;
+        } else if (mode === "ADD_GRAPH_NODE") {
+          console.log("Starting search");
+          setMode("SEARCHING");
+          // Add one search node
+          const searchX = Math.floor(Math.random() * 11);
+          const searchY = Math.floor(Math.random() * 11);
+          const searchNode = new GraphNode(nodeCount, [searchX, searchY]);
+          setSearchNode(searchNode);
+          // Run the search
+          generatorFunctionRef.current =
+            smallWorldRef.current?.searchSimilarNodesGenerator(searchNode, 1);
+          const generator = generatorFunctionRef.current;
+
+          const result = generator?.next();
+          const svg = select(svgElementRef.current);
+          drawNextStepInSearch(
+            svg,
+            searchNode,
+            result,
+            setSearchNode,
+            svgElementRef,
+            xScale,
+            yScale,
+            smallWorldRef
+          );
+          if (result?.done) {
+            setResult(result.value);
+            setMode("SEARCH_COMPLETE");
+            setSearchNode(undefined);
+          }
+        } else if (mode === "SEARCHING" && searchNode) {
+          console.log("Continuing search");
+          // Run the search
+          const generator = generatorFunctionRef.current;
+
+          const result = generator?.next();
+          const svg = select(svgElementRef.current);
+          drawNextStepInSearch(
+            svg,
+            searchNode,
+            result,
+            setSearchNode,
+            svgElementRef,
+            xScale,
+            yScale,
+            smallWorldRef
+          );
+          if (result?.done) {
+            setResult(result.value);
+            setMode("SEARCH_COMPLETE");
+            setSearchNode(undefined);
+          }
+        } else if (mode === "SEARCH_COMPLETE") {
+          console.log("Search complete, resetting");
+          // Reset the graph
+          smallWorldRef.current = new NavigableSmallWorld({ k: 1 });
+          select(svgElementRef.current).selectAll("svg > *").remove();
+          const svg = select(svgElementRef.current);
+          drawGrid(svg, xScale, yScale);
+          setGeneratedVectors(new Set());
+          setNodeCount(0);
+          setSearchNode(undefined);
+          setMode("ADD_GRAPH_NODE");
+          generatorFunctionRef.current = undefined;
+          setResult(undefined);
+        }
+      }, 750);
+
+      // Cleanup function to clear the interval
+      return () => {
+        clearInterval(intervalId);
+      };
+    }
+  }, [
+    isRunning,
+    addNode,
+    nodeCount,
+    setMode,
+    mode,
+    searchNode,
+    xScale,
+    yScale,
+  ]);
 
   // initialize the graph
   useEffect(() => {
@@ -56,6 +149,9 @@ export function DisplayNSWGraph() {
     drawGrid(svg, xScale, yScale);
     //mouse click event, not move
     svg.on("click", (event) => {
+      if (isRunning) {
+        return;
+      }
       var coords = pointer(event);
       // convert raw cords to insertable node
       // corrds[0], coords[1] need to be scaled, can go up to 500
@@ -140,67 +236,65 @@ export function DisplayNSWGraph() {
           className="mx-auto border-2 border-black"
         ></svg>
       </div>
-      <div className="flex flex-col justify-center align-middle text-center">
-        {(() => {
-          switch (mode) {
-            case "ADD_GRAPH_NODE":
-              return "Building Graph: Click the graph to add a new node to the graph. Once you have added at least 2 nodes, you can start the similarity search by clicking the button below.";
-            case "ADD_SEARCH_NODE":
-              return "Adding Search Node: Click on the graph to add a node to search for";
-            case "SEARCHING":
-              return `Searching for node at (${searchNode?.vector[0]},${searchNode?.vector[1]}). Click next to continue the search`;
-            case "SEARCH_COMPLETE":
-              return `Search Complete: Closest nodes are ${result?.map(
-                (n) => `node ${n.id} at (${n.vector[0]},${n.vector[1]})`
-              )}
+      {!isRunning ? (
+        <div className="flex flex-col justify-center align-middle text-center">
+          {(() => {
+            switch (mode) {
+              case "ADD_GRAPH_NODE":
+                return "Building Graph: Click the graph to add a new node to the graph. Once you have added at least 2 nodes, you can start the similarity search by clicking the button below.";
+              case "ADD_SEARCH_NODE":
+                return "Adding Search Node: Click on the graph to add a node to search for";
+              case "SEARCHING":
+                return `Searching for node at (${searchNode?.vector[0]},${searchNode?.vector[1]}). Click next to continue the search`;
+              case "SEARCH_COMPLETE":
+                return `Search Complete: Closest nodes are ${result?.map(
+                  (n) => `node ${n.id} at (${n.vector[0]},${n.vector[1]})`
+                )}
                   `;
-            default:
-              return "Adding Search Node";
-          }
-        })()}
-        <div className="flex flex-row gap-4 justify-center align-middle">
-          {!searchNode && (
+              default:
+                return "Adding Search Node";
+            }
+          })()}
+          <div className="flex flex-row gap-4 justify-center align-middle">
+            {!searchNode && (
+              <button
+                className={`${
+                  mode === "ADD_GRAPH_NODE"
+                    ? "bg-blue-500 hover:bg-blue-700"
+                    : "bg-orange-500 hover:bg-orange-700"
+                } text-white font-bold py-2 px-4 rounded`}
+                onClick={() => {
+                  setMode((m) =>
+                    m === "ADD_GRAPH_NODE"
+                      ? "ADD_SEARCH_NODE"
+                      : "ADD_GRAPH_NODE"
+                  );
+                }}
+              >
+                {mode === "ADD_GRAPH_NODE"
+                  ? nodeCount < 2
+                    ? "Add at least 2 nodes to start similarity search"
+                    : "Click to start similarity search"
+                  : "Click to add more nodes to the graph"}
+              </button>
+            )}
             <button
-              className={`${
-                mode === "ADD_GRAPH_NODE"
-                  ? "bg-blue-500 hover:bg-blue-700"
-                  : "bg-orange-500 hover:bg-orange-700"
-              } text-white font-bold py-2 px-4 rounded`}
+              className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
               onClick={() => {
-                setMode((m) =>
-                  m === "ADD_GRAPH_NODE" ? "ADD_SEARCH_NODE" : "ADD_GRAPH_NODE"
-                );
+                smallWorldRef.current = new NavigableSmallWorld({ k: 1 });
+                select(svgElementRef.current).selectAll("svg > *").remove();
+                const svg = select(svgElementRef.current);
+                drawGrid(svg, xScale, yScale);
+                setGeneratedVectors(new Set());
+                setNodeCount(0);
+                setSearchNode(undefined);
+                setMode("ADD_GRAPH_NODE");
+                generatorFunctionRef.current = undefined;
+                setResult(undefined);
               }}
             >
-              {mode === "ADD_GRAPH_NODE"
-                ? nodeCount < 2
-                  ? "Add at least 2 nodes to start similarity search"
-                  : "Click to start similarity search"
-                : "Click to add more nodes to the graph"}
+              Reset
             </button>
-          )}
-          <button
-            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-            onClick={() => {
-              smallWorldRef.current = new NavigableSmallWorld({ k: 1 });
-              select(svgElementRef.current).selectAll("svg > *").remove();
-              const svg = select(svgElementRef.current);
-              drawGrid(svg, xScale, yScale);
-              setGeneratedVectors(new Set());
-              setNodeCount(0);
-              setSearchNode(undefined);
-              setMode("ADD_GRAPH_NODE");
-              generatorFunctionRef.current = undefined;
-            }}
-          >
-            Reset
-          </button>
-          <form
-            className="flex flex-col gap-2"
-            onSubmit={(e) => {
-              e.preventDefault();
-            }}
-          >
             {mode === "SEARCHING" && searchNode && (
               <button
                 className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded disabled:bg-gray-400 disabled:cursor-not-allowed"
@@ -229,9 +323,48 @@ export function DisplayNSWGraph() {
                 Next
               </button>
             )}
-          </form>
+            <button
+              className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+              onClick={() => {
+                setIsRunning(true);
+              }}
+            >
+              Start Auto-Run
+            </button>
+          </div>
         </div>
-      </div>
+      ) : (
+        // toggle running button
+        <div className="flex flex-col justify-center align-middle text-center">
+          {(() => {
+            switch (mode) {
+              case "ADD_GRAPH_NODE":
+                return "Building Graph: adding new nodes to the graph.";
+              case "ADD_SEARCH_NODE":
+                return "Adding Search Node: Search node added";
+              case "SEARCHING":
+                return `Searching for node at (${searchNode?.vector[0]},${searchNode?.vector[1]}).`;
+              case "SEARCH_COMPLETE":
+                return `Search Complete: Closest nodes are ${result?.map(
+                  (n) => `node ${n.id} at (${n.vector[0]},${n.vector[1]})`
+                )}
+                  `;
+              default:
+                return "Adding Search Node";
+            }
+          })()}
+          <div className="flex flex-row gap-4 justify-center align-middle">
+            <button
+              className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+              onClick={() => {
+                setIsRunning(false);
+              }}
+            >
+              Stop Auto-Run
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
