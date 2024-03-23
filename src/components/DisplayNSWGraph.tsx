@@ -28,6 +28,7 @@ export function DisplayNSWGraph() {
   const [mode, setMode] = useState<
     "ADD_GRAPH_NODE" | "ADD_SEARCH_NODE" | "SEARCHING" | "SEARCH_COMPLETE"
   >("ADD_GRAPH_NODE");
+  const [result, setResult] = useState<GraphNode[] | undefined>(undefined);
 
   const addNode = useCallback(
     (x: number, y: number) => {
@@ -140,18 +141,23 @@ export function DisplayNSWGraph() {
         ></svg>
       </div>
       <div className="flex flex-col justify-center align-middle text-center">
-        {mode === "ADD_GRAPH_NODE" ? (
-          <div>Click the graph to add a new node to the graph</div>
-        ) : mode === "ADD_SEARCH_NODE" ? (
-          <div>
-            Click on the graph to add a node at that location and start
-            similarity search
-          </div>
-        ) : mode === "SEARCH_COMPLETE" ? (
-          <div>Search complete</div>
-        ) : (
-          <div>Click next to continue the search</div>
-        )}
+        {(() => {
+          switch (mode) {
+            case "ADD_GRAPH_NODE":
+              return "Building Graph: Click the graph to add a new node to the graph. Once you have added at least 2 nodes, you can start the similarity search by clicking the button below.";
+            case "ADD_SEARCH_NODE":
+              return "Adding Search Node: Click on the graph to add a node to search for";
+            case "SEARCHING":
+              return `Searching for node at (${searchNode?.vector[0]},${searchNode?.vector[1]}). Click next to continue the search`;
+            case "SEARCH_COMPLETE":
+              return `Search Complete: Closest nodes are ${result?.map(
+                (n) => `node ${n.id} at (${n.vector[0]},${n.vector[1]})`
+              )}
+                  `;
+            default:
+              return "Adding Search Node";
+          }
+        })()}
         <div className="flex flex-row gap-4 justify-center align-middle">
           {!searchNode && (
             <button
@@ -167,8 +173,10 @@ export function DisplayNSWGraph() {
               }}
             >
               {mode === "ADD_GRAPH_NODE"
-                ? "Currently adding Graph Nodes"
-                : "Currently adding a node to start similarity search"}
+                ? nodeCount < 2
+                  ? "Add at least 2 nodes to start similarity search"
+                  : "Click to start similarity search"
+                : "Click to add more nodes to the graph"}
             </button>
           )}
           <button
@@ -212,6 +220,7 @@ export function DisplayNSWGraph() {
                     smallWorldRef
                   );
                   if (result?.done) {
+                    setResult(result.value);
                     setMode("SEARCH_COMPLETE");
                     setSearchNode(undefined);
                   }
