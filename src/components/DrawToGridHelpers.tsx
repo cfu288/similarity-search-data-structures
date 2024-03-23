@@ -207,7 +207,6 @@ export function drawNextStepInSearch(
   result:
     | IteratorResult<GraphNode | undefined, GraphNode[] | undefined>
     | undefined,
-  setSearchNode: (node: GraphNode | undefined) => void,
   svgElementRef: React.MutableRefObject<SVGSVGElement | null>,
   xScale: ScaleLinear<number, number, never>,
   yScale: ScaleLinear<number, number, never>,
@@ -221,13 +220,15 @@ export function drawNextStepInSearch(
   // remove all text that are green with id gt<searchNode.id>-<neighbor.id>
   svg.selectAll(`text[id^='gt${searchNode.id}-']`).remove();
   // check if the search node exists
-  let group = svg.select(`g#sn${searchNode.id}`);
+  let group = svg.select<SVGSVGElement | null>(`g#sn${searchNode.id}`);
   if (!group.empty()) {
     // if it exists, fill it blue
     group.select("circle").style("fill", "blue");
   } else {
     // if it doesn't exist, draw it
-    group = svg.append("g").attr("id", `sn${searchNode.id}`);
+    group = svg
+      .append<SVGSVGElement | null>("g")
+      .attr("id", `sn${searchNode.id}`);
     group
       .append("circle")
       .attr("cx", xScale(searchNode.vector[0]))
