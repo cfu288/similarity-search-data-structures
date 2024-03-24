@@ -42,6 +42,7 @@ export function DisplayNSWGraph({ autoRun = false }: { autoRun?: boolean }) {
     },
     [setNodeCount, nodeCount, setGeneratedVectors, generatedVectors]
   );
+  const [resetCountdown, setResetCountdown] = useState(5);
 
   useEffect(() => {
     if (isRunning) {
@@ -101,22 +102,27 @@ export function DisplayNSWGraph({ autoRun = false }: { autoRun?: boolean }) {
             setResult(result.value);
             setMode("SEARCH_COMPLETE");
             setSearchNode(undefined);
+            setResetCountdown(5);
           }
         } else if (mode === "SEARCH_COMPLETE") {
           console.log("Search complete, resetting");
-          // Reset the graph
-          smallWorldRef.current = new NavigableSmallWorld({ k: 1 });
-          select(svgElementRef.current).selectAll("svg > *").remove();
-          const svg = select(svgElementRef.current);
-          drawGrid(svg, xScale, yScale);
-          setGeneratedVectors(new Set());
-          setNodeCount(0);
-          setSearchNode(undefined);
-          setMode("ADD_GRAPH_NODE");
-          generatorFunctionRef.current = undefined;
-          setResult(undefined);
+          if (resetCountdown > 1) {
+            setResetCountdown((countdown) => countdown - 1);
+          } else {
+            // Reset the graph
+            smallWorldRef.current = new NavigableSmallWorld({ k: 1 });
+            select(svgElementRef.current).selectAll("svg > *").remove();
+            const svg = select(svgElementRef.current);
+            drawGrid(svg, xScale, yScale);
+            setGeneratedVectors(new Set());
+            setNodeCount(0);
+            setSearchNode(undefined);
+            setMode("ADD_GRAPH_NODE");
+            generatorFunctionRef.current = undefined;
+            setResult(undefined);
+          }
         }
-      }, 750);
+      }, 1000);
 
       // Cleanup function to clear the interval
       return () => {
@@ -199,6 +205,9 @@ export function DisplayNSWGraph({ autoRun = false }: { autoRun?: boolean }) {
           .attr("dominant-baseline", "central")
           .style("fill", "black")
           .text(`(${newNode.vector[0]}, ${newNode.vector[1]})`); // print the node's coordinates
+
+        // clear last set of nearest neighbors w rad 13
+        svg.selectAll("g > circle").style("stroke-width", 1).attr("r", 10);
 
         setMode("SEARCHING");
       }
@@ -295,7 +304,7 @@ export function DisplayNSWGraph({ autoRun = false }: { autoRun?: boolean }) {
             </button>
             {mode === "SEARCHING" && searchNode && (
               <button
-                className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded disabled:bg-gray-400 disabled:cursor-not-allowed"
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:bg-gray-400 disabled:cursor-not-allowed"
                 onClick={() => {
                   const generator = generatorFunctionRef.current;
 
@@ -344,7 +353,7 @@ export function DisplayNSWGraph({ autoRun = false }: { autoRun?: boolean }) {
               case "SEARCH_COMPLETE":
                 return `Search Complete: Closest nodes are ${result?.map(
                   (n) => `node ${n.id} at (${n.vector[0]},${n.vector[1]})`
-                )}
+                )}. Resetting in ${resetCountdown} seconds.
                   `;
               default:
                 return "Adding Search Node";

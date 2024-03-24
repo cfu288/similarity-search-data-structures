@@ -219,7 +219,10 @@ export function drawNextStepInSearch(
   svg.selectAll(`line[id^='gl${searchNode.id}-']`).remove();
   // remove all text that are green with id gt<searchNode.id>-<neighbor.id>
   svg.selectAll(`text[id^='gt${searchNode.id}-']`).remove();
-  // check if the search node exists
+  // remove "nearest" neighbor circles with width
+  // added previously by const group = svg.select(`g#n${node.id}`);
+  svg.selectAll("g > circle").style("stroke-width", 1).attr("r", 10);
+
   let group = svg.select<SVGSVGElement | null>(`g#sn${searchNode.id}`);
   if (!group.empty()) {
     // if it exists, fill it blue
