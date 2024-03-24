@@ -94,42 +94,6 @@ export function DisplayNSWGraph({ autoRun = false }: { autoRun?: boolean }) {
     yScale,
   ]);
 
-  // Handle window resize event with throttle
-  useEffect(() => {
-    const handleWindowResize = throttle(() => {
-      if (typeof window !== "undefined") {
-        // Adjust SVG size based on window size, with a minimum of 100 and a maximum of 500
-        setSvgSize(Math.min(Math.max(getSvgParentWidth(), 100), 500));
-        // reset the svg graph completely
-        resetGraphState();
-        // clear svg completely below
-        select(svgElementRef.current).selectAll("*").remove();
-        // redraw grid
-        const svg = select(svgElementRef.current);
-        drawGrid(svg, xScale, yScale);
-      }
-    }, 200); // Throttle resize events to every 200ms
-
-    if (typeof window !== "undefined") {
-      // Add event listener for window resize
-      window.addEventListener("resize", handleWindowResize);
-
-      // Cleanup function to remove event listener
-      return () => {
-        window.removeEventListener("resize", handleWindowResize);
-        handleWindowResize.cancel(); // Cancel any pending executions of handleWindowResize
-      };
-    }
-  }, [
-    setSvgSize,
-    xScale,
-    yScale,
-    resetGraphState,
-    setNodeCount,
-    setGeneratedVectors,
-    getSvgParentWidth,
-  ]);
-
   useEffect(() => {
     if (isRunning) {
       const intervalId = setInterval(() => {
@@ -225,6 +189,42 @@ export function DisplayNSWGraph({ autoRun = false }: { autoRun?: boolean }) {
     }
   }, [nodeCount, setNodeCount, getSvgParentWidth]);
 
+  // Handle window resize event with throttle
+  useEffect(() => {
+    const handleWindowResize = throttle(() => {
+      if (typeof window !== "undefined") {
+        // Adjust SVG size based on window size, with a minimum of 100 and a maximum of 500
+        setSvgSize(Math.min(Math.max(getSvgParentWidth(), 100), 500));
+        // reset the svg graph completely
+        resetGraphState();
+        // clear svg completely below
+        select(svgElementRef.current).selectAll("*").remove();
+        // redraw grid
+        const svg = select(svgElementRef.current);
+        drawGrid(svg, xScale, yScale);
+      }
+    }, 200); // Throttle resize events to every 200ms
+
+    if (typeof window !== "undefined") {
+      // Add event listener for window resize
+      window.addEventListener("resize", handleWindowResize);
+
+      // Cleanup function to remove event listener
+      return () => {
+        window.removeEventListener("resize", handleWindowResize);
+        handleWindowResize.cancel(); // Cancel any pending executions of handleWindowResize
+      };
+    }
+  }, [
+    setSvgSize,
+    xScale,
+    yScale,
+    resetGraphState,
+    setNodeCount,
+    setGeneratedVectors,
+    getSvgParentWidth,
+  ]);
+
   // handle clearing grid and redrawing grid on resize
   useEffect(() => {
     // Redraw the grid
@@ -242,7 +242,7 @@ export function DisplayNSWGraph({ autoRun = false }: { autoRun?: boolean }) {
       if (isRunning) {
         return;
       }
-      var coords = pointer(event);
+      const coords = pointer(event);
       // convert raw cords to insertable node
       // corrds[0], coords[1] need to be scaled, can go up to 500
       const x = Math.min(Math.max(Math.round(xScale.invert(coords[0])), 0), 10);
@@ -309,6 +309,7 @@ export function DisplayNSWGraph({ autoRun = false }: { autoRun?: boolean }) {
     isRunning,
   ]);
 
+  // Re-draw nodes and lines on grid when nodeCount changes (i.e. when a new node is added)
   useEffect(() => {
     const svg = select(svgElementRef.current);
 
@@ -318,7 +319,7 @@ export function DisplayNSWGraph({ autoRun = false }: { autoRun?: boolean }) {
       return;
     }
 
-    const [last] = graphNodes?.slice(-1);
+    const [last] = graphNodes.slice(-1);
     graphNodes?.forEach((node) => {
       drawNode(svg, node, last, xScale, yScale);
       const neighbors = smallWorldRef.current?.graph.getNeighborsForNode(node);
