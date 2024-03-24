@@ -127,6 +127,12 @@ export function drawLinesToNeighbors(
   });
 }
 
+export function clearGrid(
+  svg: Selection<SVGSVGElement | null, unknown, null, undefined>
+) {
+  svg.select("#grid").remove();
+}
+
 export function drawGrid(
   svg: Selection<SVGSVGElement | null, unknown, null, undefined>,
   xScale: ScaleLinear<number, number, never>,
@@ -136,24 +142,18 @@ export function drawGrid(
     return;
   }
 
-  const xAxis = svg
-    .append("g")
-    .attr("transform", "translate(0, 500)")
-    .attr("id", "grid");
+  const gridGroup = svg.append("g").attr("id", "grid");
 
-  const yAxis = svg
+  const xAxis = gridGroup.append("g").attr("transform", "translate(0, 500)");
+
+  const yAxis = gridGroup
     .append("g")
     .attr("transform", "translate(0, 0)")
-    .attr("id", "grid")
     .style("stroke-dasharray", "5,5");
-  const xGridLines = svg
-    .append("g")
-    .attr("id", "grid")
-    .style("stroke-dasharray", "5,5");
-  const yGridLines = svg
-    .append("g")
-    .attr("id", "grid")
-    .style("stroke-dasharray", "5,5");
+
+  const xGridLines = gridGroup.append("g").style("stroke-dasharray", "5,5");
+
+  const yGridLines = gridGroup.append("g").style("stroke-dasharray", "5,5");
 
   xAxis.call(axisBottom(xScale));
   yAxis.call(axisLeft(yScale));
@@ -192,7 +192,7 @@ export function drawGrid(
     .attr("text-anchor", "middle")
     .text((d) => d);
 
-  svg
+  gridGroup
     .append("text")
     .attr("x", xScale(0))
     .attr("y", yScale(0))
@@ -262,7 +262,7 @@ export function drawNextStepInSearch(
         .style("stroke-width", 1)
         .attr("r", 13);
     });
-  } else {
+  } else if (result?.value) {
     const node = result?.value;
     console.log("node", node);
     if (node) {

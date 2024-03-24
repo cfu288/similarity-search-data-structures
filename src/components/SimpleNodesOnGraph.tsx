@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+
 import { GraphNode } from "../lib/navigable-small-world/graph-node";
 import { calculateEuclidianDistance } from "../lib/navigable-small-world/helpers";
 
@@ -10,14 +11,18 @@ export function SimpleNodesOnGraph({
   targetNode: GraphNode;
 }) {
   // Initialize SVG size state
-  const [svgSize, setSvgSize] = useState(500);
+  const [svgSize, setSvgSize] = useState(0);
+  const svgParentRef = useRef<HTMLDivElement>(null);
+  const getSvgParentWidth = useCallback(() => {
+    return svgParentRef.current ? svgParentRef.current.offsetWidth : 0;
+  }, []);
 
   // Handle window resize event
   useEffect(() => {
     const handleWindowResize = () => {
       if (typeof window !== "undefined") {
         // Adjust SVG size based on window size, with a minimum of 100 and a maximum of 500
-        setSvgSize(Math.min(Math.max(window.innerWidth - 100, 100), 500));
+        setSvgSize(Math.min(Math.max(getSvgParentWidth(), 100), 500));
       }
     };
 
@@ -30,7 +35,7 @@ export function SimpleNodesOnGraph({
         window.removeEventListener("resize", handleWindowResize);
       };
     }
-  }, []);
+  }, [getSvgParentWidth]);
 
   // Calculate distances from each node to the target node
   const nodeDistances = nodes.map((node) =>
@@ -52,12 +57,12 @@ export function SimpleNodesOnGraph({
   // Determine the shared range between x and y coordinates
   const sharedCoordinateRange = Math.max(xCoordinateRange, yCoordinateRange);
 
-  // Adjust the SVG size to ensure there is always 1 unit of buffer between the node and the end of the graph
-  const adjustedSvgSize = svgSize;
-
   return (
     <div className="container mx-auto sm:px-6 lg:px-8 flex flex-col pb-8 w-full">
-      <div className="flex flex-col justify-center align-middle transform">
+      <div
+        className="flex flex-col justify-center align-middle transform"
+        ref={svgParentRef}
+      >
         <svg
           width={svgSize}
           height={svgSize}
@@ -77,12 +82,12 @@ export function SimpleNodesOnGraph({
             ].map((_, i) => (
               <line
                 x1={
-                  ((i + 1) * adjustedSvgSize) /
+                  ((i + 1) * svgSize) /
                   (Math.max(...nodes.map((node) => node.vector[0])) + 2)
                 }
                 y1={0}
                 x2={
-                  ((i + 1) * adjustedSvgSize) /
+                  ((i + 1) * svgSize) /
                   (Math.max(...nodes.map((node) => node.vector[0])) + 2)
                 }
                 y2={svgSize}
@@ -98,13 +103,13 @@ export function SimpleNodesOnGraph({
                 x1={0}
                 y1={
                   svgSize -
-                  ((i + 1) * adjustedSvgSize) /
+                  ((i + 1) * svgSize) /
                     (Math.max(...nodes.map((node) => node.vector[1])) + 2)
                 }
                 x2={svgSize}
                 y2={
                   svgSize -
-                  ((i + 1) * adjustedSvgSize) /
+                  ((i + 1) * svgSize) /
                     (Math.max(...nodes.map((node) => node.vector[1])) + 2)
                 }
                 stroke={i === 0 ? "black" : "grey"}
@@ -117,23 +122,17 @@ export function SimpleNodesOnGraph({
           {nodes.map((node, index) => (
             <g key={node.id}>
               <line
-                x1={
-                  (node.vector[0] + 1) *
-                  (adjustedSvgSize / sharedCoordinateRange)
-                }
+                x1={(node.vector[0] + 1) * (svgSize / sharedCoordinateRange)}
                 y1={
                   svgSize -
-                  (node.vector[1] + 1) *
-                    (adjustedSvgSize / sharedCoordinateRange)
+                  (node.vector[1] + 1) * (svgSize / sharedCoordinateRange)
                 }
                 x2={
-                  (targetNode.vector[0] + 1) *
-                  (adjustedSvgSize / sharedCoordinateRange)
+                  (targetNode.vector[0] + 1) * (svgSize / sharedCoordinateRange)
                 }
                 y2={
                   svgSize -
-                  (targetNode.vector[1] + 1) *
-                    (adjustedSvgSize / sharedCoordinateRange)
+                  (targetNode.vector[1] + 1) * (svgSize / sharedCoordinateRange)
                 }
                 stroke={
                   nodeDistances[index] === shortestNodeDistance
@@ -147,18 +146,16 @@ export function SimpleNodesOnGraph({
               />
               <text
                 x={
-                  ((node.vector[0] + 1) *
-                    (adjustedSvgSize / sharedCoordinateRange) +
+                  ((node.vector[0] + 1) * (svgSize / sharedCoordinateRange) +
                     (targetNode.vector[0] + 1) *
-                      (adjustedSvgSize / sharedCoordinateRange)) /
+                      (svgSize / sharedCoordinateRange)) /
                   2
                 }
                 y={
                   svgSize -
-                  ((node.vector[1] + 1) *
-                    (adjustedSvgSize / sharedCoordinateRange) +
+                  ((node.vector[1] + 1) * (svgSize / sharedCoordinateRange) +
                     (targetNode.vector[1] + 1) *
-                      (adjustedSvgSize / sharedCoordinateRange)) /
+                      (svgSize / sharedCoordinateRange)) /
                     2
                 }
                 fill={
@@ -166,20 +163,16 @@ export function SimpleNodesOnGraph({
                     ? "green"
                     : "black"
                 }
-                text-anchor="middle"
-                dominant-baseline="middle"
+                textAnchor="middle"
+                dominantBaseline="middle"
               >
                 {nodeDistances[index].toFixed(2)}
               </text>
               <circle
-                cx={
-                  (node.vector[0] + 1) *
-                  (adjustedSvgSize / sharedCoordinateRange)
-                }
+                cx={(node.vector[0] + 1) * (svgSize / sharedCoordinateRange)}
                 cy={
                   svgSize -
-                  (node.vector[1] + 1) *
-                    (adjustedSvgSize / sharedCoordinateRange)
+                  (node.vector[1] + 1) * (svgSize / sharedCoordinateRange)
                 }
                 r="10"
                 stroke="black"
@@ -187,35 +180,27 @@ export function SimpleNodesOnGraph({
                 fill="white"
               />
               <text
-                x={
-                  (node.vector[0] + 1) *
-                  (adjustedSvgSize / sharedCoordinateRange)
-                }
+                x={(node.vector[0] + 1) * (svgSize / sharedCoordinateRange)}
                 y={
                   svgSize -
-                  (node.vector[1] + 1) *
-                    (adjustedSvgSize / sharedCoordinateRange)
+                  (node.vector[1] + 1) * (svgSize / sharedCoordinateRange)
                 }
                 fill="black"
-                text-anchor="middle"
-                dominant-baseline="middle"
+                textAnchor="middle"
+                dominantBaseline="middle"
               >
                 {node.id}
               </text>
               <text
-                x={
-                  (node.vector[0] + 1) *
-                  (adjustedSvgSize / sharedCoordinateRange)
-                }
+                x={(node.vector[0] + 1) * (svgSize / sharedCoordinateRange)}
                 y={
                   svgSize -
-                  ((node.vector[1] + 1) *
-                    (adjustedSvgSize / sharedCoordinateRange) -
+                  ((node.vector[1] + 1) * (svgSize / sharedCoordinateRange) -
                     25)
                 }
                 fill="black"
-                text-anchor="middle"
-                dominant-baseline="middle"
+                textAnchor="middle"
+                dominantBaseline="middle"
               >
                 {`(${node.vector[0]}, ${node.vector[1]})`}
               </text>
@@ -225,13 +210,11 @@ export function SimpleNodesOnGraph({
           <g>
             <circle
               cx={
-                (targetNode.vector[0] + 1) *
-                (adjustedSvgSize / sharedCoordinateRange)
+                (targetNode.vector[0] + 1) * (svgSize / sharedCoordinateRange)
               }
               cy={
                 svgSize -
-                (targetNode.vector[1] + 1) *
-                  (adjustedSvgSize / sharedCoordinateRange)
+                (targetNode.vector[1] + 1) * (svgSize / sharedCoordinateRange)
               }
               r="10"
               stroke="black"
@@ -239,35 +222,28 @@ export function SimpleNodesOnGraph({
               fill="yellow"
             />
             <text
-              x={
-                (targetNode.vector[0] + 1) *
-                (adjustedSvgSize / sharedCoordinateRange)
-              }
+              x={(targetNode.vector[0] + 1) * (svgSize / sharedCoordinateRange)}
               y={
                 svgSize -
-                (targetNode.vector[1] + 1) *
-                  (adjustedSvgSize / sharedCoordinateRange)
+                (targetNode.vector[1] + 1) * (svgSize / sharedCoordinateRange)
               }
               fill="black"
-              text-anchor="middle"
-              dominant-baseline="middle"
+              textAnchor="middle"
+              dominantBaseline="middle"
             >
               {targetNode.id}
             </text>
             <text
-              x={
-                (targetNode.vector[0] + 1) *
-                (adjustedSvgSize / sharedCoordinateRange)
-              }
+              x={(targetNode.vector[0] + 1) * (svgSize / sharedCoordinateRange)}
               y={
                 svgSize -
                 ((targetNode.vector[1] + 1) *
-                  (adjustedSvgSize / sharedCoordinateRange) -
+                  (svgSize / sharedCoordinateRange) -
                   25)
               }
               fill="black"
-              text-anchor="middle"
-              dominant-baseline="middle"
+              textAnchor="middle"
+              dominantBaseline="middle"
             >
               {`(${targetNode.vector[0]}, ${targetNode.vector[1]})`}
             </text>

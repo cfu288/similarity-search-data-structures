@@ -21,7 +21,6 @@ export class NavigableSmallWorld {
    * @returns The node that was added to the graph.
    */
   public addNode(nodeToAdd: GraphNode): GraphNode {
-    console.log(`Starting to add node ${nodeToAdd.id} to the graph`);
     let visitedNodes: Set<number> = new Set();
 
     // Initialize a priority queue to store nodes and their distances
@@ -43,7 +42,6 @@ export class NavigableSmallWorld {
       visitedNodes.add(firstNode.id);
     } else {
       // If the graph is empty, add the node and return it
-      // console.log("graph is empty, adding node", nodeToAdd.id, "\n");
       this.graph.addNode(nodeToAdd);
       return this.graph.getNode(nodeToAdd);
     }
@@ -52,20 +50,6 @@ export class NavigableSmallWorld {
     while (true) {
       // Pop the node with the smallest distance from the priority queue
       const next = visitedNeighbors.peek()!;
-      // console.log(
-      //   "Currently at node",
-      //   next?.node?.id,
-      //   "with neighbors:",
-      //   this.graph.getNeighborsForNode(next.node!)
-      // );
-      // console.log(
-      //   "distance between",
-      //   nodeToAdd.id,
-      //   "and current node",
-      //   next.node?.id,
-      //   "is",
-      //   next.distance
-      // );
 
       // Get the neighbors of the popped node
       const neighbors = this.graph.getNeighborsForNode(next.node!);
@@ -77,14 +61,6 @@ export class NavigableSmallWorld {
           const distance = calculateEuclidianDistance(nodeToAdd, neighbor);
           if (distance < next.distance) {
             allDistancesGreaterThanPopped = false;
-            // console.log(
-            //   "new smallest distance found between",
-            //   nodeToAdd.id,
-            //   "and",
-            //   neighbor.id,
-            //   "at",
-            //   distance
-            // );
           }
           visitedNeighbors.push({
             distance: distance,
@@ -103,15 +79,6 @@ export class NavigableSmallWorld {
             this.graph.addEdge(nodeToAdd, i.node);
           }
         }
-        console.log(
-          "inserting node",
-          nodeToAdd.id,
-          "at",
-          next.node?.id,
-          "with neighbors",
-          kClosestNeighbors,
-          "\n"
-        );
         return this.graph.getNode(nodeToAdd);
       }
     }
@@ -160,12 +127,6 @@ export class NavigableSmallWorld {
     while (true) {
       // Pop the node with the smallest distance from the priority queue
       const next = visitedNeighbors.pop();
-      console.log(
-        "Currently at node",
-        next?.node?.id,
-        "with neighbors:",
-        this.graph.getNeighborsForNode(next?.node!)
-      );
       if (!next) {
         break;
       }
@@ -178,23 +139,7 @@ export class NavigableSmallWorld {
       for (const neighbor of neighbors) {
         if (!visitedNodes.has(neighbor.id)) {
           const distance = calculateEuclidianDistance(node, neighbor);
-          console.log(
-            "distance between",
-            node.id,
-            "and current node",
-            neighbor.id,
-            "is",
-            distance
-          );
           if (distance < next.distance) {
-            console.log(
-              "new smallest distance found between",
-              node.id,
-              "and",
-              neighbor.id,
-              "at",
-              distance
-            );
             allDistancesGreaterThanPopped = false;
           }
           visitedNeighbors.push({
@@ -205,17 +150,8 @@ export class NavigableSmallWorld {
         }
       }
       if (allDistancesGreaterThanPopped) {
-        console.log(
-          "all distances with current neighbors greater than popped, stopping search at",
-          next.node?.id
-        );
-
         // Include the current closest node in the list of k closest neighbors
         const kClosestNeighbors = [next, ...visitedNeighbors.popN(k - 1)];
-        console.log(
-          "closest nodes with distances",
-          kClosestNeighbors.map((i) => JSON.stringify(i)).join(", ")
-        );
         return kClosestNeighbors.map((i) => i.node as GraphNode);
       }
     }

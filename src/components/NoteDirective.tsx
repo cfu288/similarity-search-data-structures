@@ -3,6 +3,7 @@ import {
   InformationCircleIcon,
 } from "@heroicons/react/20/solid";
 import type { PropsWithChildren } from "react";
+import React from "react";
 
 export function NoteDirective({
   children,
