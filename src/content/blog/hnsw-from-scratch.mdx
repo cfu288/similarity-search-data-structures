@@ -52,8 +52,9 @@ While this article is aimed at beginners, it assumes a basic understanding of pr
 
 Similarity search, a process that identifies similar items within a large dataset, is a crucial component in various applications such as recommendation systems, search engines, and information retrieval systems. This process is often applied to diverse types of data, including text documents, images, audio files, and even gifs.
 
-However, comparing these items directly can be complex. Unlike mathematics where you can just subtract two numbers to get the difference between them, there is no straightforward way to compare two text documents or images directly.
-To simplify this, we can convert these items into numerical representations, known as vectors. This conversion allows us to perform comparisons in a more straightforward manner. For example, let's consider the following sentences:
+However, comparing these items directly can be complex. Unlike numbers where you can just subtract two numbers to get the difference between them, there is no straightforward way to compare two text documents or images. To remedy this, we can convert these items into their numerical representations, known as vectors. This conversion allows us to perform mathematical comparisons in a more straightforward manner.
+
+For example, let's consider the following sentences:
 
 1. "Ham Ham Ham Ham Ham"
 2. "Spam Spam Spam Spam Spam"
@@ -66,8 +67,16 @@ We can compare these sentences by counting the frequency of each word, resulting
    {/* prettier-ignore */}
 3. "<span className="text-red-700">Ham Ham </span><span className="text-blue-700">Spam Spam Spam</span>" -> <b>[<span className="text-red-700">2</span>,{" "}<span className="text-blue-700">3</span>]</b>
 
-With these numerical vectors, we can now easily compare the sentences by calculating
-the distances between the vectors. One common method to calculate the distance
+These numerical vector representations are just a list of numbers, which enables us to now easily compare the sentences by calculating
+the distances between them.
+
+</article>
+
+<Directive text="In vector search, a vector is a list of numbers representing a point in a multi-dimensional space. A 2D vector can be represented as `[x, y]`, and a 3D vector as `[x, y, z]`. An n-dimensional vector can be represented as `[x1, x2, ..., xn]`." />
+
+<article className="prose lg:prose-xl">
+
+One common method to calculate the distance
 between vectors is the Euclidean distance, which is the straight-line distance
 between two points in a multi-dimensional space. For our two dimentional vectors we created above,
 its easy for us to visualize the distance between the vectors by plotting the vectors on a 2D plot:
@@ -98,12 +107,6 @@ More sophisticated
 methods, such as the use of embeddings generated from Large Language Models (LLM) as vecotrs are also used.
 
 The choice of which method is used to generate a vector representation depends on the specific use case. Once we have the vectors, we can use them to conduct similarity search.
-
-</article>
-
-<Directive text="In vector search, a vector is a list of numbers representing a point in a multi-dimensional space. A 2D vector can be represented as `[x, y]`, and a 3D vector as `[x, y, z]`. An n-dimensional vector can be represented as `[x1, x2, ..., xn]`." />
-
-<article className="prose lg:prose-xl">
 
 ## Hey Neighbour, Can I Borrow Some Sugar?
 
