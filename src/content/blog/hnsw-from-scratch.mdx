@@ -21,7 +21,7 @@ import { MultipleLayerGraphWithNodes } from "../../components/MultipleLayerGraph
 
 <article className="prose lg:prose-xl">
 
-There has been a recent increase in interest in vector databases, primarily due to to the rise of Generative AI and the role that vector databases play
+There has been a recent increase in interest in vector search and databases, primarily due to to the rise of Generative AI and the role that vector databases play
 in building Retrieval-Augmented Generation (RAG) systems. The role of a vector databases is to _enable fast similarity search_
 across a large number of documents. In a RAG system, vector databases are used to store and return relevant documents that can help a LLM answer a specific prompt.
 This can enable a Large Language Model (LLM) to answer questions on things that it has not been trained on, or enable LLMs to provide more accurate and relevant responses.
@@ -33,9 +33,9 @@ algorithms have improved the speed of similarity search in vector databases. Mor
 
 The goal of this post is to help provide you a high level understanding of how HNSW works and how it can be used to speed up similarity search.
 
-This may need to be split into multiple posts, as there are several topics to cover:
+This post may need to be split into multiple posts, as there are several topics to cover:
 
-- Basics of similarity search and k-Nearest Neighbors (kNN)
+- Basics of similarity search and k-nearest neighbors (KNN)
 - Introduction to Skip Lists and Navigable Small World (NSW) graphs with interactive demos and code samples
 - Implementation of a toy HNSW with interactive visualizations
 
@@ -43,12 +43,10 @@ Even with the above topics, there is still so much to cover in the realm of vect
 
 ## Prerequisites
 
-A basic understanding of the following topics would be helpful for understanding this article:
+While this article is aimed at beginners, it assumes a basic understanding of programming concepts and data structures. A basic understanding of the following topics would be helpful for understanding this article:
 
-- Basic data structures (Arrays, Linked Lists, Trees)
-- Algorithms (Sorting, Searching)
+- Basic data structures and algorithms (Arrays, Linked Lists, Trees)
 - Time complexity and Big O notation
-- Programming concepts (Classes, Functions, Variables)
 
 ## The Problem of Similarity Search
 
@@ -111,9 +109,9 @@ The choice of which method is used to generate a vector representation depends o
 
 As seen with the example above, the concept of similarity search with vectors is intuitive. If we plot the vectors in a multi-dimensional space, similar vectors should be in close proximity to each other for any given distance metric.
 
-This is essentially what the k-Nearest Neighbors (kNN) algorithm does. It calculates the distance between the given vector and all the other vectors in the dataset and returns the k vectors with the smallest distance to the given vector.
+This is essentially what the k-nearest neighbors (KNN) algorithm does. It calculates the distance between the given vector and all the other vectors in the dataset and returns the k vectors with the smallest distance to the given vector.
 
-Below is an illustration of kNN, with `k` set to 1:
+Below is an illustration of KNN, with `k` set to 1:
 
 </article>
 
@@ -133,13 +131,13 @@ k={1}
 
 <article className="prose lg:prose-xl">
 
-We can see that the vector "S" is closest to vector 2, so the kNN algorithm would return vector 2 as the nearest neighbor.
+We can see that the vector "S" is closest to vector 2, so the KNN algorithm would return vector 2 as the nearest neighbor.
 
-## Is kNN All You Need?
+## Is KNN All You Need?
 
-Despite the simplicity and intuitiveness of the k-Nearest Neighbors (kNN) algorithm, it has its limitations - primarily due to poor performance in high-dimensional and large-scale datasets.
+Despite the simplicity and intuitiveness of the k-nearest neighbors (KNN) algorithm, it has its limitations - primarily due to poor performance in high-dimensional and large-scale datasets.
 
-To touch on algorithmic complexity in the naive kNN brute force search:
+To touch on algorithmic complexity in the naive KNN brute force search:
 
 - Let `n` represent the number of points in the dataset
 - Let `d` represent the data dimensionality (how large a vector is)
@@ -166,7 +164,7 @@ What strategies can we utilize to make similarity search faster? If we trade off
 - NSW provides a way to build and search a graph that allows for fast approximate nearest neighbor search
 
 - What is HNSW and why it's needed
-- How HNSW improves upon kNN methods
+- How HNSW improves upon KNN methods
   - ANN algorithms and their role in vector search
 - Advantages of HNSW for vector database search
 - Comparison with other search methods
