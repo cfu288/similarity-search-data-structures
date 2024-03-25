@@ -114,7 +114,7 @@ As seen with the example above, the concept of similarity search with vectors is
 
 This is essentially what the k-nearest neighbors (KNN) algorithm does. It calculates the distance between the given vector and all the other vectors in the dataset and returns the k vectors with the smallest distance to the given vector.
 
-Below is an illustration of KNN, where we have a vector "S" with value of [2,3]. We want to find the closest vector (`k` = 1) in the set:
+Below is an illustration of KNN, where we have a vector 0 with value of [2,3]. We want to find the closest vector (`k` = 1) in the set:
 
 </article>
 
@@ -128,13 +128,13 @@ Below is an illustration of KNN, where we have a vector "S" with value of [2,3].
     new GraphNode(5, [6, 1]),
 
 ]}
-targetNode={new GraphNode("S", [2, 3])}
+targetNode={new GraphNode(0, [2, 3])}
 k={1}
 />
 
 <article className="prose lg:prose-xl">
 
-We can see that the vector "S" is closest to vector 2, so the KNN algorithm would return vector 2 as the nearest neighbor.
+We can see that the vector 0 is closest to vector 2, so the KNN algorithm would return vector 2 as the nearest neighbor.
 
 ## Is KNN All You Need?
 

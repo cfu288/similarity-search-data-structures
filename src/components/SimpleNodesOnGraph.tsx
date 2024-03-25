@@ -41,7 +41,7 @@ export function SimpleNodesOnGraph({
 
   const [currentNodeIndex, setCurrentNodeIndex] = useState(0);
   const [shortestNodeDistance, setShortestNodeDistance] = useState(Infinity);
-  const [closestNode, setClosestNode] = useState(null);
+  const [closestNode, setClosestNode] = useState<GraphNode | null>(null);
 
   useEffect(() => {
     const interval = setInterval(() => {

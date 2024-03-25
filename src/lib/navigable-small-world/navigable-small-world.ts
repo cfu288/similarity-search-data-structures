@@ -21,10 +21,10 @@ export class NavigableSmallWorld {
    * @returns The node that was added to the graph.
    */
   public addNode(nodeToAdd: GraphNode): GraphNode {
-    let visitedNodes: Set<number> = new Set();
+    const visitedNodes: Set<number> = new Set();
 
     // Initialize a priority queue to store nodes and their distances
-    let visitedNeighbors = new PriorityQueue<{
+    const visitedNeighbors = new PriorityQueue<{
       distance: number;
       node?: GraphNode;
     }>({
@@ -99,10 +99,10 @@ export class NavigableSmallWorld {
    * @returns
    */
   public searchSimilarNodes(node: GraphNode, k: number): GraphNode[] {
-    let visitedNodes: Set<number> = new Set();
+    const visitedNodes: Set<number> = new Set();
 
     // Initialize a priority queue to store nodes and their distances
-    let visitedNeighbors = new PriorityQueue<{
+    const visitedNeighbors = new PriorityQueue<{
       distance: number;
       node?: GraphNode;
     }>({
@@ -159,10 +159,10 @@ export class NavigableSmallWorld {
   }
 
   public *searchSimilarNodesGenerator(node: GraphNode, k: number) {
-    let visitedNodes: Set<number> = new Set();
+    const visitedNodes: Set<number> = new Set();
 
     // Initialize a priority queue to store nodes and their distances
-    let visitedNeighbors = new PriorityQueue<{
+    const visitedNeighbors = new PriorityQueue<{
       distance: number;
       node?: GraphNode;
     }>({
