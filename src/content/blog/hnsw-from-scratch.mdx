@@ -9,6 +9,7 @@ import { DisplayNSWGraph } from "../../components/DisplayNSWGraph";
 import { NoteDirective, WarnDirective } from "../../components/NoteDirective";
 import { GraphNode } from "../../lib/navigable-small-world/graph-node";
 import { SimpleNodesOnGraph } from "../../components/SimpleNodesOnGraph";
+import { MultipleLayerGraphWithNodes } from "../../components/MultipleLayerGraphWithNodes";
 
 <WarnDirective text="This article is a work in progress. The code examples and the visualizations are placeholders and will be updated soon." />
 
@@ -125,6 +126,12 @@ What strategies can we utilize to make similarity search faster? If we trade off
 
 ## Introduction to HNSW
 
+</article>
+
+<MultipleLayerGraphWithNodes client:load />
+
+<article className="prose lg:prose-xl">
+
 - Skip Lists improve on a traditional linked list by utilizing multiple sparse levels, with performance characteristics similar to a balanced tree
 - NSW provides a way to build and search a graph that allows for fast approximate nearest neighbor search
 
@@ -138,7 +145,7 @@ What strategies can we utilize to make similarity search faster? If we trade off
 
 - Understanding and implementing Skip List
 - Understanding and implementing NSW
-- Understanding and implementing HNSW
+- Understanding and implementing HNS
 - Testing and analyzing the performance of our HNSW implementation
 
 </article>
