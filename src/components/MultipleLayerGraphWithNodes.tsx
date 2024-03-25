@@ -2,19 +2,28 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { GraphNode } from "../lib/navigable-small-world/graph-node";
 import { calculateEuclidianDistance } from "../lib/navigable-small-world/helpers";
 
-export function MultipleLayerGraphWithNodes({
-  nodes = [new GraphNode(1, [5, 0]), new GraphNode(2, [0, 5])],
-  targetNode = new GraphNode(3, [2, 3]),
-}: {
-  nodes: GraphNode[];
-  targetNode: GraphNode;
-}) {
-  // Initialize SVG size state
+const useRotatingZAngle = (initialAngle = 0, speed = 20) => {
+  const [rotateZAngle, setRotateZAngle] = useState(initialAngle);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRotateZAngle((angle) => angle + 360 / speed);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [speed]);
+
+  return rotateZAngle;
+};
+
+const useSVGSize = (svgParentRef: React.RefObject<HTMLDivElement>) => {
   const [svgSize, setSvgSize] = useState(500);
-  const svgParentRef = useRef<HTMLDivElement>(null);
+
   const getSvgParentWidth = useCallback(() => {
-    return svgParentRef.current ? svgParentRef.current.offsetWidth : 0;
-  }, []);
+    return svgParentRef.current
+      ? Math.round(svgParentRef.current.offsetWidth * 0.8)
+      : 0;
+  }, [svgParentRef]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -22,7 +31,7 @@ export function MultipleLayerGraphWithNodes({
         setSvgSize(Math.min(Math.max(getSvgParentWidth(), 100), 500));
       }
     }
-  }, [getSvgParentWidth]);
+  }, [getSvgParentWidth, svgParentRef]);
 
   // Handle window resize event
   useEffect(() => {
@@ -44,41 +53,45 @@ export function MultipleLayerGraphWithNodes({
     }
   }, [getSvgParentWidth]);
 
+  return svgSize;
+};
+
+export function MultipleLayerGraphWithNodes({
+  nodes = [new GraphNode(1, [5, 0]), new GraphNode(2, [0, 5])],
+  targetNode = new GraphNode(3, [2, 3]),
+}: {
+  nodes: GraphNode[];
+  targetNode: GraphNode;
+}) {
+  // Initialize SVG size state
+  const svgParentRef = useRef<HTMLDivElement>(null);
+  const svgSize = useSVGSize(svgParentRef);
+  const rotateZAngle = useRotatingZAngle();
+
   // Calculate distances from each node to the target node
   const nodeDistances = nodes.map((node) =>
-    calculateEuclidianDistance(node, targetNode)
-  );
-  // Find the shortest distance
-  const shortestNodeDistance = Math.min(...nodeDistances);
+      calculateEuclidianDistance(node, targetNode)
+    ),
+    shortestNodeDistance = Math.min(...nodeDistances);
 
   // Calculate the range of x and y coordinates
-  const nodeXCoordinates = nodes.map((node) => node.vector[0]);
-  const nodeYCoordinates = nodes.map((node) => node.vector[1]);
-  const minNodeX = Math.min(...nodeXCoordinates);
-  const maxNodeX = Math.max(...nodeXCoordinates);
-  const xCoordinateRange = maxNodeX - minNodeX + 2;
-  const minNodeY = Math.min(...nodeYCoordinates);
-  const maxNodeY = Math.max(...nodeYCoordinates);
-  const yCoordinateRange = maxNodeY - minNodeY + 2;
+  const nodeXCoordinates = nodes.map((node) => node.vector[0]),
+    nodeYCoordinates = nodes.map((node) => node.vector[1]),
+    minNodeX = Math.min(...nodeXCoordinates),
+    maxNodeX = Math.max(...nodeXCoordinates),
+    xCoordinateRange = maxNodeX - minNodeX + 2,
+    minNodeY = Math.min(...nodeYCoordinates),
+    maxNodeY = Math.max(...nodeYCoordinates),
+    yCoordinateRange = maxNodeY - minNodeY + 2;
 
   // Determine the shared range between x and y coordinates
   const sharedCoordinateRange = Math.max(xCoordinateRange, yCoordinateRange);
 
   const layers = 3;
 
-  const [rotateZAngle, setRotateZAngle] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setRotateZAngle((angle) => angle + 360 / 20);
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [rotateZAngle]);
-
   return (
     <div
-      className="relative container mx-auto sm:px-6 lg:px-8 flex flex-col pb-8 w-full"
+      className="relative container mx-auto sm:px-6 lg:px-8 flex flex-col w-full mb-16 sm:mb-10 md:mb-4 mt-2"
       style={{
         minHeight: svgSize,
       }}
