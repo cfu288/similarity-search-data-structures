@@ -1,17 +1,25 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { GraphNode } from "../lib/navigable-small-world/graph-node";
-import { calculateEuclidianDistance } from "../lib/navigable-small-world/helpers";
 
 const useRotatingZAngle = (initialAngle = 0, speed = 20) => {
   const [rotateZAngle, setRotateZAngle] = useState(initialAngle);
+  const [direction, setDirection] = useState(1);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setRotateZAngle((angle) => angle + 360 / speed);
+      setRotateZAngle((angle) => {
+        let newAngle = angle + (direction * 360) / speed;
+        if (newAngle >= 360) {
+          setDirection(-1);
+        } else if (newAngle < 0) {
+          setDirection(1);
+        }
+        return newAngle;
+      });
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [speed]);
+  }, [speed, direction]);
 
   return rotateZAngle;
 };
@@ -67,12 +75,6 @@ export function MultipleLayerGraphWithNodes({
   const svgParentRef = useRef<HTMLDivElement>(null);
   const svgSize = useSVGSize(svgParentRef);
   const rotateZAngle = useRotatingZAngle();
-
-  // Calculate distances from each node to the target node
-  const nodeDistances = nodes.map((node) =>
-      calculateEuclidianDistance(node, targetNode)
-    ),
-    shortestNodeDistance = Math.min(...nodeDistances);
 
   // Calculate the range of x and y coordinates
   const nodeXCoordinates = nodes.map((node) => node.vector[0]),
@@ -187,44 +189,11 @@ export function MultipleLayerGraphWithNodes({
                       (targetNode.vector[1] + 1) *
                         (svgSize / sharedCoordinateRange)
                     }
-                    stroke={
-                      nodeDistances[index] === shortestNodeDistance
-                        ? "green"
-                        : "black"
-                    }
-                    strokeWidth={
-                      nodeDistances[index] === shortestNodeDistance
-                        ? "2"
-                        : "0.5"
-                    }
+                    stroke={"black"}
+                    strokeWidth={"0.5"}
                     opacity={0.5}
                   />
-                  <text
-                    x={
-                      ((node.vector[0] + 1) *
-                        (svgSize / sharedCoordinateRange) +
-                        (targetNode.vector[0] + 1) *
-                          (svgSize / sharedCoordinateRange)) /
-                      2
-                    }
-                    y={
-                      svgSize -
-                      ((node.vector[1] + 1) *
-                        (svgSize / sharedCoordinateRange) +
-                        (targetNode.vector[1] + 1) *
-                          (svgSize / sharedCoordinateRange)) /
-                        2
-                    }
-                    fill={
-                      nodeDistances[index] === shortestNodeDistance
-                        ? "green"
-                        : "black"
-                    }
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                  >
-                    {nodeDistances[index].toFixed(2)}
-                  </text>
+
                   <circle
                     cx={
                       (node.vector[0] + 1) * (svgSize / sharedCoordinateRange)
