@@ -11,11 +11,19 @@ export function SimpleNodesOnGraph({
   targetNode: GraphNode;
 }) {
   // Initialize SVG size state
-  const [svgSize, setSvgSize] = useState(0);
+  const [svgSize, setSvgSize] = useState(500);
   const svgParentRef = useRef<HTMLDivElement>(null);
   const getSvgParentWidth = useCallback(() => {
     return svgParentRef.current ? svgParentRef.current.offsetWidth : 0;
   }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      if (svgParentRef.current) {
+        setSvgSize(Math.min(Math.max(getSvgParentWidth(), 100), 500));
+      }
+    }
+  }, [getSvgParentWidth]);
 
   // Handle window resize event
   useEffect(() => {

@@ -192,16 +192,21 @@ export function DisplayNSWGraph({ autoRun = false }: { autoRun?: boolean }) {
   // Handle window resize event with throttle
   useEffect(() => {
     const handleWindowResize = throttle(() => {
+      const lastSvgSize = svgSize;
       if (typeof window !== "undefined") {
-        // Adjust SVG size based on window size, with a minimum of 100 and a maximum of 500
-        setSvgSize(Math.min(Math.max(getSvgParentWidth(), 100), 500));
-        // reset the svg graph completely
-        resetGraphState();
-        // clear svg completely below
-        select(svgElementRef.current).selectAll("*").remove();
-        // redraw grid
-        const svg = select(svgElementRef.current);
-        drawGrid(svg, xScale, yScale);
+        const newSvgSize = Math.min(Math.max(getSvgParentWidth(), 100), 500);
+        // Only execute resize logic if the SVG size has actually changed
+        if (newSvgSize !== lastSvgSize) {
+          // Adjust SVG size based on window size, with a minimum of 100 and a maximum of 500
+          setSvgSize(newSvgSize);
+          // reset the svg graph completely
+          // resetGraphState();
+          // clear svg completely below
+          select(svgElementRef.current).selectAll("*").remove();
+          // redraw grid
+          const svg = select(svgElementRef.current);
+          drawGrid(svg, xScale, yScale);
+        }
       }
     }, 200); // Throttle resize events to every 200ms
 
@@ -216,6 +221,7 @@ export function DisplayNSWGraph({ autoRun = false }: { autoRun?: boolean }) {
       };
     }
   }, [
+    svgSize,
     setSvgSize,
     xScale,
     yScale,
