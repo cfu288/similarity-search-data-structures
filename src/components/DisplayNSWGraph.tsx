@@ -351,7 +351,7 @@ export function DisplayNSWGraph({ autoRun = false }: { autoRun?: boolean }) {
         ></svg>
       </div>
       {!isRunning ? (
-        <div className="flex flex-col justify-center align-middle text-center">
+        <div className="flex flex-col justify-center align-middle text-center min-h-24">
           {(() => {
             switch (mode) {
               case "ADD_GRAPH_NODE":
@@ -437,7 +437,7 @@ export function DisplayNSWGraph({ autoRun = false }: { autoRun?: boolean }) {
         </div>
       ) : (
         // toggle running button
-        <div className="flex flex-col justify-center align-middle text-center ">
+        <div className="flex flex-col justify-center align-middle text-center min-h-24">
           {(() => {
             switch (mode) {
               case "ADD_GRAPH_NODE":
