@@ -6,7 +6,11 @@ heroImage: "/blog-placeholder-5.jpg"
 ---
 
 import { DisplayNSWGraph } from "../../components/DisplayNSWGraph";
-import { NoteDirective, WarnDirective } from "../../components/NoteDirective";
+import {
+  NoteDirective,
+  WarnDirective,
+  Directive,
+} from "../../components/NoteDirective";
 import { GraphNode } from "../../lib/navigable-small-world/graph-node";
 import { SimpleNodesOnGraph } from "../../components/SimpleNodesOnGraph";
 import { MultipleLayerGraphWithNodes } from "../../components/MultipleLayerGraphWithNodes";
@@ -67,7 +71,7 @@ We can compare these sentences by counting the frequency of each word, resulting
 With these numerical vectors, we can now easily compare the sentences by calculating
 the distances between the vectors. One common method to calculate the distance
 between vectors is the Euclidean distance, which is the straight-line distance
-between two points in a multi-dimensional space. For our two dimentional vectors we created aboce,
+between two points in a multi-dimensional space. For our two dimentional vectors we created above,
 its easy for us to visualize the distance between the vectors by plotting the vectors on a 2D plot:
 
 </article>
@@ -76,18 +80,30 @@ its easy for us to visualize the distance between the vectors by plotting the ve
 
 <article className="prose lg:prose-xl">
 
-Its pretty easy to see that the distance between vectors 2 and 3 is less than the distance between vectors 1 and 3, which makes sense. Sentence 3 is more similar to sentence 2 than to sentence 1 because it has more instances of "Spam" than "Ham".
+Its pretty easy to visually see that the distance between vectors 2 and 3 is less than the distance between vectors 1 and 3, which makes sense. Sentence 3 is more similar to sentence 2 than to sentence 1 because it has more instances of "Spam" than "Ham".
 
-There are many techniques to generate vectors from data. In the above example, we
+While the euclidian distance is a simple and intuitive way to measure distance between vectors, it is not always the best choice. In high-dimensional spaces, it can suffer from the "curse of dimensionality", where noisy values in the vector can overshadow useful values. This issue can be partially mitigated with data normalization and dimension weighting, however there are other distance metrics that are less susceptible to these issues.
+
+Another distance metric that is commonly used in text data is the Cosine similarity. This can be a highly performant metric, as it is a fast calculation that ignores the magnitude of the vectors and focuses on the direction.
+
+In all of our examples on this page, we use Euclidean distance for simplicity of visualization.
+
+### Methods to Generate Vectors from Data
+
+There are many techniques to generate vectors from data.
+
+In the above example, we
 used the bag-of-words method to generate a vector from a text document, where each
-number in the vector represents the frequency of a particular word. More sophisticated
-methods, such as Large Language Model (LLM) embeddings, are also used to generate vectors.
+number in the vector represents the frequency of a particular word.
 
-The choice of which method is used to generate a vector representation depends on the specific use case. Once we have the vectors, we can use them to find similar items.
+More sophisticated
+methods, such as the use of embeddings generated from Large Language Models (LLM) as vecotrs are also used.
+
+The choice of which method is used to generate a vector representation depends on the specific use case. Once we have the vectors, we can use them to conduct similarity search.
 
 </article>
 
-<NoteDirective text="Vectors are mathematical objects with magnitude and direction. In vector search, a vector is a list of numbers representing a point in a multi-dimensional space. For example, a 2D vector can be represented as `[x, y]`, and a 3D vector as `[x, y, z]`. An n-dimensional vector can be represented as `[x1, x2, ..., xn]`." />
+<Directive text="In vector search, a vector is a list of numbers representing a point in a multi-dimensional space. A 2D vector can be represented as `[x, y]`, and a 3D vector as `[x, y, z]`. An n-dimensional vector can be represented as `[x1, x2, ..., xn]`." />
 
 <article className="prose lg:prose-xl">
 
@@ -97,13 +113,27 @@ As seen with the example above, the concept of similarity search with vectors is
 
 This is essentially what the k-Nearest Neighbors (kNN) algorithm does. It calculates the distance between the given vector and all the other vectors in the dataset and returns the k vectors with the smallest distance to the given vector.
 
-### How do we measure distance between vectors?
+Below is an illustration of kNN, with `k` set to 1:
 
-There are various methods to calculate vector distances. The simplest is Euclidean distance (which we used above), the straight-line distance in multi-dimensional space. However, in high-dimensional spaces, it's less effective due to the "curse of dimensionality", where noise can overshadow useful values. This issue can be partially mitigated with normalization and dimension weighting.
+</article>
 
-Another common distance metric is the Cosine similarity, which measures the cosine of the angle between two vectors. This can be a highly performant metric for text data, as it is a fast calculation that ignores the magnitude of the vectors and focuses on the direction. It is also less sensitive to the curse of dimensionality.
+<SimpleNodesOnGraph
+  client:load
+  nodes={[
+    new GraphNode(1, [0, 1]),
+    new GraphNode(2, [1, 5]),
+    new GraphNode(3, [5, 4]),
+    new GraphNode(4, [5, 6]),
+    new GraphNode(5, [6, 1]),
 
-In our examples below, we use Euclidean distance for simplicity.
+]}
+targetNode={new GraphNode("S", [2, 3])}
+k={1}
+/>
+
+<article className="prose lg:prose-xl">
+
+We can see that the vector "S" is closest to vector 2, so the kNN algorithm would return vector 2 as the nearest neighbor.
 
 ## Is kNN All You Need?
 

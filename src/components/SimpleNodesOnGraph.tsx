@@ -5,7 +5,7 @@ import { calculateEuclidianDistance } from "../lib/navigable-small-world/helpers
 
 export function SimpleNodesOnGraph({
   nodes = [new GraphNode(1, [5, 0]), new GraphNode(2, [0, 5])],
-  targetNode = new GraphNode(3, [2, 3]),
+  targetNode = new GraphNode("S", [2, 3]),
 }: {
   nodes: GraphNode[];
   targetNode: GraphNode;
@@ -45,6 +45,7 @@ export function SimpleNodesOnGraph({
     }
   }, [getSvgParentWidth]);
 
+  const k = 2;
   // Calculate distances from each node to the target node
   const nodeDistances = nodes.map((node) =>
     calculateEuclidianDistance(node, targetNode)
@@ -85,41 +86,23 @@ export function SimpleNodesOnGraph({
             strokeDasharray="5,5"
             opacity={0.5}
           >
-            {[
-              ...Array(Math.max(...nodes.map((node) => node.vector[0])) + 2),
-            ].map((_, i) => (
+            {[...Array(sharedCoordinateRange)].map((_, i) => (
               <line
-                x1={
-                  ((i + 1) * svgSize) /
-                  (Math.max(...nodes.map((node) => node.vector[0])) + 2)
-                }
+                x1={((i + 1) * svgSize) / sharedCoordinateRange}
                 y1={0}
-                x2={
-                  ((i + 1) * svgSize) /
-                  (Math.max(...nodes.map((node) => node.vector[0])) + 2)
-                }
+                x2={((i + 1) * svgSize) / sharedCoordinateRange}
                 y2={svgSize}
                 stroke={i === 0 ? "black" : "grey"}
                 strokeWidth={i === 0 ? "2" : "0.5"}
                 key={`vertical${i}`}
               />
             ))}
-            {[
-              ...Array(Math.max(...nodes.map((node) => node.vector[1])) + 2),
-            ].map((_, i) => (
+            {[...Array(sharedCoordinateRange)].map((_, i) => (
               <line
                 x1={0}
-                y1={
-                  svgSize -
-                  ((i + 1) * svgSize) /
-                    (Math.max(...nodes.map((node) => node.vector[1])) + 2)
-                }
+                y1={svgSize - ((i + 1) * svgSize) / sharedCoordinateRange}
                 x2={svgSize}
-                y2={
-                  svgSize -
-                  ((i + 1) * svgSize) /
-                    (Math.max(...nodes.map((node) => node.vector[1])) + 2)
-                }
+                y2={svgSize - ((i + 1) * svgSize) / sharedCoordinateRange}
                 stroke={i === 0 ? "black" : "grey"}
                 strokeWidth={i === 0 ? "2" : "0.5"}
                 key={`horizontal${i}`}

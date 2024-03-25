@@ -30,6 +30,24 @@ export function NoteDirective({
   );
 }
 
+export function Directive({
+  children,
+  text,
+}: PropsWithChildren<{ text: string }>) {
+  return (
+    <div className="border-l-4 border-blue-400 bg-blue-50 p-4 my-4">
+      <div className="flex m-0 p-0 ">
+        <div className="ml-3">
+          <div className="ml-3">
+            <div className="mt-2 text-sm text-blue-700">{text}</div>
+            {children}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function WarnDirective({
   children,
   text,

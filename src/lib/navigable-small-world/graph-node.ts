@@ -1,7 +1,7 @@
 // for simplicity, we will use a 2D vector for easy plotting
 
 export class GraphNode {
-  public id: number;
+  public id: number | string;
   public vector: [number, number];
 
   constructor(id: number, vector: [number, number]) {
@@ -11,9 +11,9 @@ export class GraphNode {
 
   /**
    * Serializes the GraphNode object into a JSON string.
-   * 
+   *
    * @returns {string} The serialized GraphNode object.
-   * 
+   *
    * @example
    * const node = new GraphNode(1, [2, 3]);
    * const serializedNode = node.serialize();
@@ -25,17 +25,17 @@ export class GraphNode {
 
   /**
    * Deserializes a JSON string into a GraphNode object.
-   * 
+   *
    * @param {string} jsonString - The JSON string to deserialize.
    * @returns {GraphNode} The deserialized GraphNode object.
-   * 
+   *
    * @example
    * const jsonString = '{"id":1,"vector":[2,3]}';
    * const node = GraphNode.deserialize(jsonString);
    * console.log(node); // Outputs: GraphNode { id: 1, vector: [ 2, 3 ] }
    */
   static deserialize(jsonString: string): GraphNode {
-    let obj = JSON.parse(jsonString);
+    const obj = JSON.parse(jsonString);
     return new GraphNode(obj.id, obj.vector);
   }
 }
