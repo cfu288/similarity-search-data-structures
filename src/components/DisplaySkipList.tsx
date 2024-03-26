@@ -6,6 +6,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import type { SkipNode } from "../lib/skip-list/skip-node";
 
 const INITIAL_SVG_SIZE = 500;
 const MIN_SVG_SIZE = 100;
@@ -20,13 +21,9 @@ const TEXT_Y_OFFSET = 25;
 const TEXT_Y_EXTRA_OFFSET = 13;
 
 const defaultSl = new SkipList<number>(SKIP_LIST_HEIGHT, 0.6);
-defaultSl.insert(1);
-defaultSl.insert(2);
-defaultSl.insert(3);
-defaultSl.insert(4);
-defaultSl.insert(5);
-defaultSl.insert(6);
-defaultSl.insert(7);
+for (let i = 1; i < 8; i++) {
+  defaultSl.insert(i);
+}
 
 const useSVGSize = (svgParentRef: React.RefObject<HTMLDivElement>) => {
   const [svgSize, setSvgSize] = useState(INITIAL_SVG_SIZE);
@@ -77,6 +74,20 @@ export function DisplaySkipList({
   const svgSize = useSVGSize(svgParentRef);
   const [sl, setSl] = useState(skipList);
 
+  const searchGenerator = useRef(sl.getGenerator(4));
+  const [highlightedNode, setHighlightedNode] = useState<number | null>(null);
+
+  const handleNext = () => {
+    const result = searchGenerator.current.next();
+    if (!result.done) {
+      setHighlightedNode(result.value);
+    } else if (result.done && result.value) {
+      setHighlightedNode(result.value as number);
+    } else {
+      //   setHighlightedNode(null);
+    }
+  };
+
   return (
     <div className="container mx-auto sm:px-6 lg:px-8 flex flex-col pb-8 w-full">
       <div
@@ -103,7 +114,13 @@ export function DisplaySkipList({
                         width={RECT_WIDTH}
                         height={RECT_HEIGHT}
                         y={i * RECT_HEIGHT}
-                        fill="transparent"
+                        fill={
+                          node.value === 4 && highlightedNode === node.value
+                            ? "yellow"
+                            : highlightedNode === node.value
+                              ? "green"
+                              : "transparent"
+                        }
                         stroke="black"
                       ></rect>
                       <text
@@ -197,14 +214,22 @@ export function DisplaySkipList({
       <button
         onClick={() => {
           const newSl = new SkipList<number>(SKIP_LIST_HEIGHT, 0.6);
-          for (let i = 1; i < 7; i++) {
+          for (let i = 1; i < 8; i++) {
             newSl.insert(i);
           }
           setSl(newSl);
+          setHighlightedNode(null);
+          searchGenerator.current = newSl.getGenerator(4);
         }}
         className="mx-auto mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
       >
         Generate new Skip List
+      </button>
+      <button
+        onClick={handleNext}
+        className="mx-auto mt-4 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+      >
+        Next
       </button>
     </div>
   );

@@ -198,6 +198,33 @@ export class SkipList<T extends Comparable> {
   }
 
   /**
+   * Generator version of get that yields on each new node it is visiting before finally returning the matching value if it exists.
+   *
+   * @param value The value to be retrieved from the skip list.
+   * @returns A generator that yields each visited node and returns the value if it exists, undefined otherwise.
+   */
+  *getGenerator(value: T): Generator<T, T | undefined, unknown> {
+    let current = this.headerNode;
+    yield current.value as T;
+    for (let i = this.maxLevels - 1; i >= 0; i--) {
+      while (
+        current.next[i] !== undefined &&
+        this.compareValues(current.next[i].value as T, value) < 0
+      ) {
+        current = current.next[i];
+        yield current.value as T;
+      }
+      if (
+        current.next[i] !== undefined &&
+        this.compareValues(current.next[i].value as T, value) === 0
+      ) {
+        return current.next[i].value as T;
+      }
+    }
+    return undefined;
+  }
+
+  /**
    * Gets the index of a value in the lowest skip list layer.
    *
    * ```ts
