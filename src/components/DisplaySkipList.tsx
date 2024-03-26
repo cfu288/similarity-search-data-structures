@@ -6,7 +6,6 @@ import React, {
   useRef,
   useState,
 } from "react";
-import type { SkipNode } from "../lib/skip-list/skip-node";
 
 const INITIAL_SVG_SIZE = 500;
 const MIN_SVG_SIZE = 100;
@@ -214,9 +213,9 @@ export function DisplaySkipList({
             transform={`translate(${(sl.size() + 1) * (RECT_WIDTH + RECT_PADDING) + TEXT_X_POSITION}, ${svgSize - sl.getHeaderNode().next.length * RECT_HEIGHT - TEXT_Y_OFFSET} )`}
           >
             {[...sl.getHeaderNode().next].reverse().map((n, i) => (
-              <>
+              <Fragment key={`gn-tail${i}`}>
                 {n && (
-                  <g key={i}>
+                  <g>
                     <rect
                       key={`n${i}-Tail`}
                       width={RECT_WIDTH}
@@ -238,7 +237,7 @@ export function DisplaySkipList({
                     </text>
                   </g>
                 )}
-              </>
+              </Fragment>
             ))}
           </g>
         </svg>
