@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useRef,
   useState,
+  useMemo,
 } from "react";
 
 const INITIAL_SVG_SIZE = 500;
@@ -13,8 +14,8 @@ const MAX_SVG_SIZE = 500;
 const SVG_WIDTH_FACTOR = 0.8;
 const SKIP_LIST_HEIGHT = 8;
 const RECT_WIDTH = 40;
-const RECT_HEIGHT = 50;
-const RECT_PADDING = 10; // Added padding between rectangles
+const RECT_HEIGHT = 40;
+const RECT_PADDING = 10;
 const TEXT_X_POSITION = 20;
 const TEXT_Y_OFFSET = 25;
 const TEXT_Y_EXTRA_OFFSET = 13;
@@ -84,10 +85,15 @@ export function DisplaySkipList({
       setHighlightedNode(result.value);
     } else if (result.done && result.value) {
       setHighlightedNode(result.value as number);
-    } else {
-      //   setHighlightedNode(null);
     }
   };
+
+  const nodes = useMemo(() => [sl.getHeaderNode(), ...sl.nodes()], [sl]);
+  const tailTransform = useMemo(
+    () =>
+      `translate(${(svgSize - (nodes.length + 1) * (RECT_WIDTH + RECT_PADDING)) / 2 + (sl.size() + 1) * (RECT_WIDTH + RECT_PADDING)}, ${svgSize - sl.getHeaderNode().next.length * RECT_HEIGHT - TEXT_Y_OFFSET} )`,
+    [svgSize, nodes.length, sl]
+  );
 
   return (
     <div className="container mx-auto sm:px-6 lg:px-8 flex flex-col pb-8 w-full">
@@ -102,142 +108,133 @@ export function DisplaySkipList({
           className="mx-auto border-2 border-black"
           style={{ width: svgSize, height: svgSize }}
         >
-          {[sl.getHeaderNode(), ...sl.nodes()].map((node, index) => (
-            <g
-              key={`gn${index}`}
-              transform={`translate(${index * (RECT_WIDTH + RECT_PADDING) + TEXT_X_POSITION}, ${svgSize - node.next.length * RECT_HEIGHT - TEXT_Y_OFFSET} )`}
-            >
-              {[...node.next].reverse().map((n, i) => (
-                <Fragment key={`gn${index}${i}`}>
-                  {(index !== 0 || n) && (
-                    <g>
-                      <rect
-                        width={RECT_WIDTH}
-                        height={RECT_HEIGHT}
-                        y={i * RECT_HEIGHT}
-                        fill={
-                          node.value === 5 && highlightedNode === node.value
-                            ? "yellow"
-                            : highlightedNode === node.value
-                              ? "green"
-                              : "transparent"
-                        }
-                        stroke="black"
-                      ></rect>
-                      <text
-                        x={TEXT_X_POSITION}
-                        y={i * RECT_HEIGHT + TEXT_Y_OFFSET}
-                        textAnchor="middle"
-                      >
-                        {`${n?.value || "END"}`}
-                      </text>
-                      <defs>
-                        <marker
-                          id="head-black"
-                          orient="auto"
-                          markerWidth="3"
-                          markerHeight="4"
-                          refX="0.1"
-                          refY="2"
-                        >
-                          <path d="M0,0 V4 L2,2 Z" fill={"black"} />
-                        </marker>
-                        <marker
-                          id="head-red"
-                          orient="auto"
-                          markerWidth="3"
-                          markerHeight="4"
-                          refX="0.1"
-                          refY="2"
-                        >
-                          <path d="M0,0 V4 L2,2 Z" fill={"red"} />
-                        </marker>
-                        <marker
-                          id="head-green"
-                          orient="auto"
-                          markerWidth="3"
-                          markerHeight="4"
-                          refX="0.1"
-                          refY="2"
-                        >
-                          <path d="M0,0 V4 L2,2 Z" fill={"green"} />
-                        </marker>
-                      </defs>
-                      <line
-                        x1={TEXT_X_POSITION + 20}
-                        y1={i * RECT_HEIGHT + TEXT_Y_OFFSET}
-                        x2={
-                          n && n.value !== null
-                            ? TEXT_X_POSITION +
-                              (sl.indexOf(n.value) - index) *
-                                (RECT_WIDTH + RECT_PADDING) +
-                              RECT_WIDTH / 1.5
-                            : TEXT_X_POSITION +
-                              (sl.size() - index + 1) *
-                                (RECT_WIDTH + RECT_PADDING) -
-                              25
-                        }
-                        y2={i * RECT_HEIGHT + TEXT_Y_OFFSET}
-                        strokeWidth={`2`}
-                        markerEnd={
-                          highlightedNode === node.value && node.value !== 5
-                            ? 5 < (n?.value || Number.MAX_SAFE_INTEGER)
-                              ? "url(#head-red)"
-                              : "url(#head-green)"
-                            : "url(#head-black)"
-                        }
-                        stroke={
-                          highlightedNode === node.value && node.value !== 5
-                            ? 5 < (n?.value || Number.MAX_SAFE_INTEGER)
-                              ? "red"
-                              : "green"
-                            : "black"
-                        }
-                      />
-                      {/* for each line, write text on the halfway point in the form: `${currentValue} ?< ${nextValue}` */}
-                      {highlightedNode === node.value && node.value !== 5 && (
-                        <text
-                          x={
-                            (TEXT_X_POSITION +
-                              (n && n.value !== null
-                                ? TEXT_X_POSITION +
-                                  (sl.indexOf(n.value) - index) *
-                                    (RECT_WIDTH + RECT_PADDING) +
-                                  RECT_WIDTH / 1.5
-                                : TEXT_X_POSITION +
-                                  (sl.size() - index + 1) *
-                                    (RECT_WIDTH + RECT_PADDING) -
-                                  25)) /
-                            2
+          {nodes.map((node, index) => {
+            const transform = `translate(${(svgSize - (nodes.length + 1) * (RECT_WIDTH + RECT_PADDING)) / 2 + index * (RECT_WIDTH + RECT_PADDING)}, ${svgSize - node.next.length * RECT_HEIGHT - TEXT_Y_OFFSET} )`;
+            return (
+              <g key={`gn${index}`} transform={transform}>
+                {[...node.next].reverse().map((n, i) => (
+                  <Fragment key={`gn${index}${i}`}>
+                    {(index !== 0 || n) && (
+                      <g>
+                        <rect
+                          width={RECT_WIDTH}
+                          height={RECT_HEIGHT}
+                          y={i * RECT_HEIGHT}
+                          fill={
+                            node.value === 5 && highlightedNode === node.value
+                              ? "yellow"
+                              : highlightedNode === node.value
+                                ? "green"
+                                : "transparent"
                           }
-                          y={i * RECT_HEIGHT + TEXT_Y_OFFSET - 10}
-                          textAnchor="middle"
-                          dominantBaseline="middle"
-                          fill="black"
-                          fontSize="10"
-                        >
-                          {`${5} <= ${n?.value || "END"}`}
-                        </text>
-                      )}
-                    </g>
-                  )}
-                </Fragment>
-              ))}
-              <text
-                x={TEXT_X_POSITION}
-                y={node.next.length * RECT_HEIGHT + TEXT_Y_EXTRA_OFFSET}
-                textAnchor="middle"
-                fontWeight="bold"
-              >
-                {index === 0 ? "HEAD" : node.value}
-              </text>
-            </g>
-          ))}
+                          stroke="black"
+                        ></rect>
+                        <defs>
+                          <marker
+                            id="head-black"
+                            orient="auto"
+                            markerWidth="3"
+                            markerHeight="4"
+                            refX="0.1"
+                            refY="2"
+                          >
+                            <path d="M0,0 V4 L2,2 Z" fill={"black"} />
+                          </marker>
+                          <marker
+                            id="head-red"
+                            orient="auto"
+                            markerWidth="3"
+                            markerHeight="4"
+                            refX="0.1"
+                            refY="2"
+                          >
+                            <path d="M0,0 V4 L2,2 Z" fill={"red"} />
+                          </marker>
+                          <marker
+                            id="head-green"
+                            orient="auto"
+                            markerWidth="3"
+                            markerHeight="4"
+                            refX="0.1"
+                            refY="2"
+                          >
+                            <path d="M0,0 V4 L2,2 Z" fill={"green"} />
+                          </marker>
+                        </defs>
+                        <line
+                          x1={TEXT_X_POSITION + RECT_WIDTH / 2}
+                          y1={i * RECT_HEIGHT + TEXT_Y_OFFSET}
+                          x2={
+                            n && n.value !== null
+                              ? TEXT_X_POSITION +
+                                (sl.indexOf(n.value) - index) *
+                                  (RECT_WIDTH + RECT_PADDING) +
+                                RECT_WIDTH / 1.5
+                              : TEXT_X_POSITION +
+                                (sl.size() - index + 1) *
+                                  (RECT_WIDTH + RECT_PADDING) -
+                                RECT_WIDTH / 1.7
+                          }
+                          y2={i * RECT_HEIGHT + TEXT_Y_OFFSET}
+                          strokeWidth={`2`}
+                          markerEnd={
+                            highlightedNode === node.value && node.value !== 5
+                              ? 5 < (n?.value || Number.MAX_SAFE_INTEGER)
+                                ? "url(#head-red)"
+                                : "url(#head-green)"
+                              : "url(#head-black)"
+                          }
+                          stroke={
+                            highlightedNode === node.value && node.value !== 5
+                              ? 5 < (n?.value || Number.MAX_SAFE_INTEGER)
+                                ? "red"
+                                : "green"
+                              : "black"
+                          }
+                        />
+                        {/* for each line, write text on the halfway point in the form: `${currentValue} ?< ${nextValue}` */}
+                        {highlightedNode === node.value && node.value !== 5 && (
+                          <text
+                            x={
+                              (TEXT_X_POSITION +
+                                (n && n.value !== null
+                                  ? TEXT_X_POSITION +
+                                    (sl.indexOf(n.value) - index) *
+                                      (RECT_WIDTH + RECT_PADDING) +
+                                    RECT_WIDTH / 1.5
+                                  : TEXT_X_POSITION +
+                                    (sl.size() - index + 1) *
+                                      (RECT_WIDTH + RECT_PADDING) -
+                                    RECT_WIDTH / 3)) /
+                                2 +
+                              RECT_WIDTH / 6
+                            }
+                            y={i * RECT_HEIGHT + TEXT_Y_OFFSET - 10}
+                            textAnchor="middle"
+                            dominantBaseline="middle"
+                            fill="black"
+                            fontSize="10"
+                          >
+                            {`${5} <= ${n?.value || "END"}`}
+                          </text>
+                        )}
+                      </g>
+                    )}
+                  </Fragment>
+                ))}
+                <text
+                  x={TEXT_X_POSITION}
+                  y={node.next.length * RECT_HEIGHT + TEXT_Y_EXTRA_OFFSET}
+                  textAnchor="middle"
+                  fontWeight="bold"
+                >
+                  {index === 0 ? "HEAD" : node.value}
+                </text>
+              </g>
+            );
+          })}
           {/* tail */}
-          <g
-            key={`gn-tail`}
-            transform={`translate(${(sl.size() + 1) * (RECT_WIDTH + RECT_PADDING) + TEXT_X_POSITION}, ${svgSize - sl.getHeaderNode().next.length * RECT_HEIGHT - TEXT_Y_OFFSET} )`}
-          >
+          <g key={`gn-tail`} transform={tailTransform}>
             {[...sl.getHeaderNode().next].reverse().map((n, i) => (
               <Fragment key={`gn-tail${i}`}>
                 {n && (
