@@ -4,7 +4,7 @@ import { GraphNode } from "../lib/navigable-small-world/graph-node";
 import { calculateEuclidianDistance } from "../lib/navigable-small-world/helpers";
 
 export function SimpleNodesOnGraph({
-  nodes = [new GraphNode(1, [5, 0]), new GraphNode(2, [0, 5])],
+  nodes = [new GraphNode(1, [0, 5]), new GraphNode(2, [5, 0])],
   targetNode = new GraphNode(0, [2, 3]),
 }: {
   nodes: GraphNode[];
@@ -163,7 +163,11 @@ export function SimpleNodesOnGraph({
                           (svgSize / sharedCoordinateRange)) /
                         2
                     }
-                    fill={node === closestNode ? "green" : "black"}
+                    fill={
+                      closestNode && node.id === closestNode.id
+                        ? "green"
+                        : "black"
+                    }
                     textAnchor="middle"
                     dominantBaseline="middle"
                   >

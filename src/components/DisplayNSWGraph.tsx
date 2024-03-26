@@ -355,7 +355,7 @@ export function DisplayNSWGraph({ autoRun = false }: { autoRun?: boolean }) {
           {(() => {
             switch (mode) {
               case "ADD_GRAPH_NODE":
-                return "Building Graph: Click the graph to add a new node to the graph. Once you have added at least 2 nodes, you can start the similarity search by clicking the button below.";
+                return "Building Graph: Click the graph above to add a new node to the graph. Once you have added at least 2 nodes, you can start the similarity search by clicking the blue button below.";
               case "ADD_SEARCH_NODE":
                 return "Adding Search Node: Click on the graph to add a node to search for";
               case "SEARCHING":
