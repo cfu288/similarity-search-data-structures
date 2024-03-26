@@ -33,6 +33,14 @@ export class SkipList<T extends Comparable> {
     this.maxLevels = maxLevels;
   }
 
+  /**
+   * For display purposes only
+   * @returns
+   */
+  public getHeaderNode(): SkipNode<T> {
+    return this.headerNode;
+  }
+
   private compareValues(value1: T, value2: T): number {
     if (typeof value1 === "number" && typeof value2 === "number") {
       return value1 - value2;
@@ -324,4 +332,17 @@ export class SkipList<T extends Comparable> {
       current = current.next[0];
     }
   };
+
+  nodes() {
+    const _this = this;
+    return {
+      [Symbol.iterator]: function* () {
+        let current = _this.headerNode.next[0];
+        while (current) {
+          yield current;
+          current = current.next[0];
+        }
+      },
+    };
+  }
 }

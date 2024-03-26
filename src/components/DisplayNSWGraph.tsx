@@ -2,13 +2,7 @@ import { pointer } from "d3";
 import { scaleLinear } from "d3-scale";
 import { select } from "d3-selection";
 import throttle from "lodash.throttle";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { NavigableSmallWorld } from "../lib/navigable-small-world";
 import { GraphNode } from "../lib/navigable-small-world/graph-node";

@@ -1,2 +1,4 @@
 import { OptimizedSkipList } from "./optimized-skip-list";
-export { OptimizedSkipList as SkipList };
+import { SkipList } from "./skip-list";
+export { OptimizedSkipList };
+export { SkipList };

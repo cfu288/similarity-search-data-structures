@@ -8,7 +8,7 @@ const useRotatingZAngle = (initialAngle = 0, speed = 20) => {
   useEffect(() => {
     const interval = setInterval(() => {
       setRotateZAngle((angle) => {
-        let newAngle = angle + (direction * 360) / speed;
+        const newAngle = angle + (direction * 360) / speed;
         if (newAngle >= 360) {
           setDirection(-1);
         } else if (newAngle < 0) {
@@ -170,7 +170,7 @@ export function MultipleLayerGraphWithNodes({
                 ))}
               </g>
               {/* draw nodes and connections */}
-              {nodes.map((node, index) => (
+              {nodes.map((node) => (
                 <g key={node.id}>
                   <line
                     x1={
