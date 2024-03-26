@@ -74,11 +74,13 @@ export function DisplaySkipList({
   const svgSize = useSVGSize(svgParentRef);
   const [sl, setSl] = useState(skipList);
 
-  const searchGenerator = useRef(sl.getGenerator(4));
+  const searchGenerator = useRef(sl.getGenerator(5));
   const [highlightedNode, setHighlightedNode] = useState<number | null>(null);
+  const [count, setCount] = useState(0);
 
   const handleNext = () => {
     const result = searchGenerator.current.next();
+    setCount(count + 1);
     if (!result.done) {
       setHighlightedNode(result.value);
     } else if (result.done && result.value) {
@@ -115,7 +117,7 @@ export function DisplaySkipList({
                         height={RECT_HEIGHT}
                         y={i * RECT_HEIGHT}
                         fill={
-                          node.value === 4 && highlightedNode === node.value
+                          node.value === 5 && highlightedNode === node.value
                             ? "yellow"
                             : highlightedNode === node.value
                               ? "green"
@@ -157,10 +159,41 @@ export function DisplaySkipList({
                               25
                         }
                         y2={i * RECT_HEIGHT + TEXT_Y_OFFSET}
-                        stroke="black"
                         strokeWidth={`2`}
                         markerEnd="url(#head)"
+                        stroke={
+                          highlightedNode === node.value && node.value !== 5
+                            ? 5 < (n?.value || Number.MAX_SAFE_INTEGER)
+                              ? "red"
+                              : "green"
+                            : "black"
+                        }
                       />
+                      {/* for each line, write text on the halfway point in the form: `${currentValue} ?< ${nextValue}` */}
+                      {highlightedNode === node.value && node.value !== 5 && (
+                        <text
+                          x={
+                            (TEXT_X_POSITION +
+                              (n && n.value !== null
+                                ? TEXT_X_POSITION +
+                                  (sl.indexOf(n.value) - index) *
+                                    (RECT_WIDTH + RECT_PADDING) +
+                                  RECT_WIDTH / 1.5
+                                : TEXT_X_POSITION +
+                                  (sl.size() - index + 1) *
+                                    (RECT_WIDTH + RECT_PADDING) -
+                                  25)) /
+                            2
+                          }
+                          y={i * RECT_HEIGHT + TEXT_Y_OFFSET - 10}
+                          textAnchor="middle"
+                          dominantBaseline="middle"
+                          fill="black"
+                          fontSize="10"
+                        >
+                          {`${5} <= ${n?.value || "END"}`}
+                        </text>
+                      )}
                     </g>
                   )}
                 </Fragment>
@@ -211,6 +244,11 @@ export function DisplaySkipList({
         </svg>
       </div>
       {/* generate new sl */}
+      <div className="text-center mt-4">
+        {!(highlightedNode === 5)
+          ? `Searching for node 5 in the Skip List. Click next to see the next step. Current step: ${count}`
+          : `Found node 5 in ${count} steps. Click on the button to generate a new Skip List.`}
+      </div>
       <button
         onClick={() => {
           const newSl = new SkipList<number>(SKIP_LIST_HEIGHT, 0.6);
@@ -219,7 +257,8 @@ export function DisplaySkipList({
           }
           setSl(newSl);
           setHighlightedNode(null);
-          searchGenerator.current = newSl.getGenerator(4);
+          searchGenerator.current = newSl.getGenerator(5);
+          setCount(0);
         }}
         className="mx-auto mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
       >
