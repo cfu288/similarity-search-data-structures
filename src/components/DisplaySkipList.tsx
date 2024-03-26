@@ -133,14 +133,34 @@ export function DisplaySkipList({
                       </text>
                       <defs>
                         <marker
-                          id="head"
+                          id="head-black"
                           orient="auto"
                           markerWidth="3"
                           markerHeight="4"
                           refX="0.1"
                           refY="2"
                         >
-                          <path d="M0,0 V4 L2,2 Z" fill="black" />
+                          <path d="M0,0 V4 L2,2 Z" fill={"black"} />
+                        </marker>
+                        <marker
+                          id="head-red"
+                          orient="auto"
+                          markerWidth="3"
+                          markerHeight="4"
+                          refX="0.1"
+                          refY="2"
+                        >
+                          <path d="M0,0 V4 L2,2 Z" fill={"red"} />
+                        </marker>
+                        <marker
+                          id="head-green"
+                          orient="auto"
+                          markerWidth="3"
+                          markerHeight="4"
+                          refX="0.1"
+                          refY="2"
+                        >
+                          <path d="M0,0 V4 L2,2 Z" fill={"green"} />
                         </marker>
                       </defs>
                       <line
@@ -159,7 +179,13 @@ export function DisplaySkipList({
                         }
                         y2={i * RECT_HEIGHT + TEXT_Y_OFFSET}
                         strokeWidth={`2`}
-                        markerEnd="url(#head)"
+                        markerEnd={
+                          highlightedNode === node.value && node.value !== 5
+                            ? 5 < (n?.value || Number.MAX_SAFE_INTEGER)
+                              ? "url(#head-red)"
+                              : "url(#head-green)"
+                            : "url(#head-black)"
+                        }
                         stroke={
                           highlightedNode === node.value && node.value !== 5
                             ? 5 < (n?.value || Number.MAX_SAFE_INTEGER)
