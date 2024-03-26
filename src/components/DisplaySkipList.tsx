@@ -75,7 +75,7 @@ export function DisplaySkipList({
 
   const searchGenerator = useRef(sl.getGenerator(5));
   const [highlightedNode, setHighlightedNode] = useState<number | null>(null);
-  const [count, setCount] = useState(0);
+  const [count, setCount] = useState(-1);
 
   const handleNext = () => {
     const result = searchGenerator.current.next();
@@ -245,7 +245,7 @@ export function DisplaySkipList({
       {/* generate new sl */}
       <div className="text-center mt-4">
         {!(highlightedNode === 5)
-          ? `Searching for node 5 in the Skip List. Click next to see the next step. Current step: ${count}`
+          ? `Searching for node 5 in the Skip List. Click next to see the next step. ${count === -1 ? "" : `Current step:  ${count}`}`
           : `Found node 5 in ${count} steps. Click on the button to generate a new Skip List.`}
       </div>
       <button
@@ -257,18 +257,20 @@ export function DisplaySkipList({
           setSl(newSl);
           setHighlightedNode(null);
           searchGenerator.current = newSl.getGenerator(5);
-          setCount(0);
+          setCount(-1);
         }}
         className="mx-auto mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
       >
         Generate new Skip List
       </button>
-      <button
-        onClick={handleNext}
-        className="mx-auto mt-4 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-      >
-        Next
-      </button>
+      {highlightedNode !== 5 && (
+        <button
+          onClick={handleNext}
+          className="mx-auto mt-4 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+        >
+          Next
+        </button>
+      )}
     </div>
   );
 }
