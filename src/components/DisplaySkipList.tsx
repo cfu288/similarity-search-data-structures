@@ -163,7 +163,7 @@ export function DisplaySkipList({
                         </defs>
                         <line
                           x1={TEXT_X_POSITION + RECT_WIDTH / 2}
-                          y1={i * RECT_HEIGHT + TEXT_Y_OFFSET}
+                          y1={i * RECT_HEIGHT + TEXT_Y_OFFSET - 5}
                           x2={
                             n && n.value !== null
                               ? TEXT_X_POSITION +
@@ -175,7 +175,7 @@ export function DisplaySkipList({
                                   (RECT_WIDTH + RECT_PADDING) -
                                 RECT_WIDTH / 1.7
                           }
-                          y2={i * RECT_HEIGHT + TEXT_Y_OFFSET}
+                          y2={i * RECT_HEIGHT + TEXT_Y_OFFSET - 5}
                           strokeWidth={`2`}
                           markerEnd={
                             highlightedNode === node.value && node.value !== 5
