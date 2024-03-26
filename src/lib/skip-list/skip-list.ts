@@ -24,13 +24,15 @@ import { SkipNode } from "./skip-node";
 export class SkipList<T extends Comparable> {
   private headerNode: SkipNode<T>;
   private maxLevels: number;
+  private heightProbability: number;
 
-  constructor(maxLevels = MAX_LEVELS) {
+  constructor(maxLevels = MAX_LEVELS, heightProbability = 0.5) {
     this.headerNode = new SkipNode<T>(
       0 as T, // Changed from undefined as unknown as T to 0, assuming 0 as a neutral value for initialization
       MAX_LEVELS
     );
     this.maxLevels = maxLevels;
+    this.heightProbability = heightProbability;
   }
 
   /**
@@ -63,7 +65,7 @@ export class SkipList<T extends Comparable> {
    */
   insert(value: T): void {
     // Calculate the level for the new node based on probability
-    const levels = calculateLevels();
+    const levels = calculateLevels(this.maxLevels, this.heightProbability);
     // Create a new node with the given value and calculated levels
     const newNode = new SkipNode<T>(value, levels);
     // Start from the header node

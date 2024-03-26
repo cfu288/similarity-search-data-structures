@@ -8,14 +8,18 @@ import { MAX_LEVELS } from "./constants";
 function randomTrue(probability = 0.5): boolean {
   return Math.random() < probability;
 }
+
 /**
  * Calculates the number of levels for a new node based on probability.
  * @param maxLevels The maximum number of levels to calculate. Default is 32
  * @returns The number of levels to be used for the new node
  */
-export function calculateLevels(maxLevels = MAX_LEVELS): number {
+export function calculateLevels(
+  maxLevels = MAX_LEVELS,
+  probability = 0.5
+): number {
   let levels = 1;
-  while (randomTrue() && levels < maxLevels) {
+  while (randomTrue(probability) && levels < maxLevels) {
     levels++;
   }
   return levels;
