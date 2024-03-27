@@ -85,10 +85,10 @@ the distances between them.
 
 <article className="prose lg:prose-xl">
 
-One common method to calculate the distance
+One standard method to calculate the distance
 between vectors is the Euclidean distance, which is the straight-line distance
-between two points in a multi-dimensional space. For our two dimentional vectors we created above,
-its easy for us to visualize the distance between the vectors by plotting the vectors on a 2D plot:
+between two points in a multi-dimensional space. For the two-dimensional vectors we created above,
+it's easy for us to visualize the distance between the vectors by plotting the vectors on a 2D plot:
 
 </article>
 
@@ -96,13 +96,13 @@ its easy for us to visualize the distance between the vectors by plotting the ve
 
 <article className="prose lg:prose-xl">
 
-Its pretty easy to visually see that the distance between vectors 2 and 3 is less than the distance between vectors 1 and 3, which makes sense. Sentence 3 is more similar to sentence 2 than to sentence 1 because it has more instances of "Spam" than "Ham".
+It's easy to visually see that the distance between vectors 2 and 3 is less than the distance between vectors 1 and 3, which makes sense. Sentence 3 is more similar to sentence 2 than to sentence 1 because it has more instances of "Spam" than "Ham."
 
-While the euclidian distance is a simple and intuitive way to measure distance between vectors, it is not always the best choice. In high-dimensional spaces, it can suffer from the "curse of dimensionality", where noisy values in the vector can overshadow useful values. This issue can be partially mitigated with data normalization and dimension weighting, however there are other distance metrics that are less susceptible to these issues.
+While the Euclidian distance is a simple and intuitive way to measure distance between vectors, it is not always the best choice. High-dimensional spaces can suffer from the "curse of dimensionality," where noisy or unrelated values in the vector can overshadow valuable values, skewing the distance between vectors. This issue can be partially mitigated with data normalization and dimension weighting. However, other distance metrics are less susceptible to these issues.
 
 One such distance metric that is commonly used is Cosine similarity. This can be a highly performant metric, as it is a fast calculation that ignores the magnitude of the vectors and focuses on the direction.
 
-In all of our examples on this page, we use Euclidean distance for simplicity of visualization.
+In all of our examples on this page, we use Euclidean distance to simplify visualization.
 
 ### Methods to Generate Vectors from Data
 
@@ -113,15 +113,15 @@ used the bag-of-words method to generate a vector from a text document, where ea
 number in the vector represents the frequency of a particular word.
 
 More sophisticated
-methods, such as the use of embeddings generated from Large Language Models (LLM) as vecotrs are also used.
+methods, such as embeddings generated from Large Language Models (LLM) as vectors, are also used.
 
-The choice of which method is used to generate a vector representation depends on the specific use case. Once we have the vectors, we can use them to conduct similarity search.
+The choice of which method is used to generate a vector representation depends on the specific use case. Once we have the vectors, we can use them for similarity search.
 
 ## Hey Neighbour, Can I Borrow Some Sugar?
 
-As seen with the example above, the concept of similarity search with vectors is intuitive. If we plot the vectors in a multi-dimensional space, similar vectors should be in close proximity to each other for any given distance metric.
+As the example above shows, a similarity search with vectors is intuitive. Suppose we plot the vectors in a multi-dimensional space. In that case, similar vectors should be close to each other for any distance metric.
 
-This is essentially what the k-nearest neighbors (KNN) algorithm does. It calculates the distance between the given vector and all the other vectors in the dataset and returns the k vectors with the smallest distance to the given vector.
+The k-nearest neighbors (KNN) algorithm does this. It calculates the distance between the given vector and all the other vectors in the dataset and returns the k vectors with the smallest distance to the given vector.
 
 Below is an illustration of KNN (with `k` = 1), where we have vector 0 with a vector of [2,3] that we want to find the closest vector to from the following set:
 
@@ -146,7 +146,7 @@ We can see that the vector 0 is closest to vector 2, so the KNN algorithm would 
 
 ## Is KNN All You Need?
 
-Despite the simplicity and intuitiveness of the k-nearest neighbors (KNN) algorithm, it has its limitations - primarily due to poor performance in high-dimensional and large-scale datasets.
+Despite its simplicity and intuitiveness, the k-nearest neighbors (KNN) algorithm has limitations, primarily due to poor performance in high-dimensional and large-scale datasets.
 
 To touch on algorithmic complexity in the naive KNN brute force search:
 
@@ -159,7 +159,7 @@ Given that, the time complexity for:
 - finding one nearest neighbor is `O(n * d)`
 - for finding k nearest neighbors, it is `O(n * d * k)`
 
-This means the algorithm essentially runs in linear time, which can be prohibitively slow for large datasets.
+This means the algorithm runs in linear time, which can be prohibitively slow for large datasets.
 
 What strategies can we utilize to make similarity search faster? If we trade off some accuracy for speed, we can use Approximate Nearest Neighbor (ANN) algorithms.
 
