@@ -22,6 +22,21 @@ import { DisplaySkipList } from "../../components/DisplaySkipList";
 
 <article className="prose lg:prose-xl">
 
+This article aims to give a high-level overview of the Hierarchical Navigable Small World (HNSW) algorithm and how it can be used
+to speed up similarity search. While it appears to be a complex algorithm at first, understanding it can be much simpler if we explore the
+fundamental concepts it is built on. As you'll see, HNSW is just one complex algorithm that is the culmination of several
+more straightforward concepts combined. Understanding these simpler concepts on a conceptual makes understanding HNSW straightforward.
+
+In this post, we will explain this algorithm from a fundamentals-first perspective, work through each of the algorithms it was built on,
+like skip lists and navigatable small worlds, and use interactive visualizations to walk through how they work. In a later post, we'll
+build a toy implementation of each of the algorithms from scratch.
+
+Many of my posts target medical professionals with a minimal technical background, but who are interested in tech, so we'll avoid
+digging too deep into the math and using mathematical notation. However, this specific post may require some basic understanding of topics
+in computer science like data structures (Arrays, Linked Lists, Trees) and time complexity (Big O notation).
+
+# Why is HNSW Important?
+
 There has been a recent increase in interest in vector search and databases, primarily due to to the rise of Generative AI and the role that vector databases play
 in building Retrieval-Augmented Generation (RAG) systems. The role of a vector databases is to _enable fast similarity search_
 across a large number of documents. In a RAG system, vector databases are used to store and return relevant documents that can help a LLM answer a specific prompt.
@@ -41,13 +56,6 @@ This post may need to be split into multiple posts, as there are several topics 
 - Implementation of a toy HNSW with interactive visualizations
 
 Even with the above topics, there is still so much to cover in the realm of vector search and ANN algorithms that we cannot squeeze into a single post. If you find this article interesting and would like to see similar articles that dive through these other topics not touched in this post, let me know!
-
-## Prerequisites
-
-While this article is aimed at beginners, it assumes a basic understanding of programming concepts and data structures. A basic understanding of the following topics would be helpful for understanding this article:
-
-- Basic data structures and algorithms (Arrays, Linked Lists, Trees)
-- Time complexity and Big O notation
 
 ## The Problem of Similarity Search
 
