@@ -160,9 +160,14 @@ What strategies can we utilize to make similarity search faster? If we trade off
 
 # Introduction to HNSW
 
-HNSW is one of several ANN algorithms that have been developed to speed up similarity search. Originally proposed by Yu. A. Malkov and D. A. Yashunin in 2016, HNSW builds on the concept of Navigable Small World (NSW) graphs, which are a type of graph that allows for fast approximate nearest neighbor search.
+HNSW is one of several ANN algorithms that have been developed to speed up similarity search. Originally proposed by Yu. A. Malkov and
+D. A. Yashunin in 2016, HNSW builds on the concept of Navigable Small World (NSW) graphs, which are a type of graph that allows for fast
+approximate nearest neighbor search.
 
-Hierarchical NSW is a multi-layer graph structure that builds upon NSW, enable a logarithmic time complexity for nearest neighbor search. Performance is much improved compared to the previous state-of-the-art ANN algorithms.
+Hierarchical NSW is a multi-layer graph structure that builds upon NSW, enable a logarithmic time complexity for nearest neighbor search.
+Performance is much improved compared to the previous state-of-the-art ANN algorithms.
+
+To understand how HNSW achieves this, we need to first understand the skip list and navigable small words data structures. These are the building blocks of HNSW and are essential to understanding how HNSW works.
 
 </article>
 
