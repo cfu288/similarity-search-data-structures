@@ -2,7 +2,13 @@ import { pointer } from "d3";
 import { scaleLinear } from "d3-scale";
 import { select } from "d3-selection";
 import throttle from "lodash.throttle";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import { NavigableSmallWorld } from "../lib/navigable-small-world";
 import { GraphNode } from "../lib/navigable-small-world/graph-node";
@@ -12,6 +18,7 @@ import {
   drawLinesToNeighbors,
   drawNextStepInSearch,
   drawNode,
+  drawSearchNode,
 } from "./DrawToGridHelpers";
 
 export function DisplayNSWGraph({ autoRun = false }: { autoRun?: boolean }) {
@@ -67,6 +74,24 @@ export function DisplayNSWGraph({ autoRun = false }: { autoRun?: boolean }) {
     [setNodeCount, nodeCount, generatedVectors]
   );
 
+  const addRandomNode = useCallback(() => {
+    let x: number;
+    let y: number;
+    do {
+      x = Math.floor(Math.random() * 11);
+      y = Math.floor(Math.random() * 11);
+    } while (generatedVectors.has(`${x},${y}`));
+
+    setGeneratedVectors((prevVectors) => {
+      const newGV = new Set(prevVectors);
+      newGV.add(`${x},${y}`);
+      return newGV;
+    });
+    const newNode = new GraphNode(nodeCount, [x, y]);
+    smallWorldRef.current?.addNode(newNode);
+    setNodeCount((nodeCount) => nodeCount + 1);
+  }, [setNodeCount, nodeCount, generatedVectors]);
+
   const resetGraphState = useCallback(() => {
     smallWorldRef.current = new NavigableSmallWorld({ k: 1 });
     select(svgElementRef.current).selectAll("svg > *").remove();
@@ -92,41 +117,24 @@ export function DisplayNSWGraph({ autoRun = false }: { autoRun?: boolean }) {
     if (isRunning) {
       const intervalId = setInterval(() => {
         if (mode === "ADD_GRAPH_NODE") {
-          if (nodeCount < 8) {
-            // Add 10 random nodes
-            const x = Math.floor(Math.random() * 11);
-            const y = Math.floor(Math.random() * 11);
-            addNode(x, y);
-          } else {
-            setMode("SEARCHING");
-            // Add one search node
-            const searchX = Math.floor(Math.random() * 11);
-            const searchY = Math.floor(Math.random() * 11);
-            const searchNode = new GraphNode(nodeCount, [searchX, searchY]);
-            setSearchNode(searchNode);
-            // Run the search
+          // Add 10 random nodes
+          addRandomNode();
+          if (nodeCount >= 10) {
+            setMode("ADD_SEARCH_NODE");
+          }
+        } else if (!searchNode && mode === "ADD_SEARCH_NODE") {
+          const searchX = Math.floor(Math.random() * 11);
+          const searchY = Math.floor(Math.random() * 11);
+          const searchNode = new GraphNode(nodeCount, [searchX, searchY]);
+          setSearchNode(searchNode);
+          setMode("SEARCHING");
+          const svg = select(svgElementRef.current);
+          drawSearchNode(svg, searchNode, xScale, yScale);
+        } else if (mode === "SEARCHING" && searchNode) {
+          if (!generatorFunctionRef.current) {
             generatorFunctionRef.current =
               smallWorldRef.current?.searchSimilarNodesGenerator(searchNode, 1);
-            const generator = generatorFunctionRef.current;
-
-            const result = generator?.next();
-            const svg = select(svgElementRef.current);
-            drawNextStepInSearch(
-              svg,
-              searchNode,
-              result,
-              svgElementRef,
-              xScale,
-              yScale,
-              smallWorldRef
-            );
-            if (result?.done) {
-              setResult(result.value);
-              setMode("SEARCH_COMPLETE");
-              setSearchNode(undefined);
-            }
           }
-        } else if (mode === "SEARCHING" && searchNode) {
           // Run the search
           const generator = generatorFunctionRef.current;
 
@@ -154,7 +162,7 @@ export function DisplayNSWGraph({ autoRun = false }: { autoRun?: boolean }) {
             resetGraphState();
           }
         }
-      }, 1000);
+      }, 750);
 
       // Cleanup function to clear the interval
       return () => {
@@ -236,7 +244,6 @@ export function DisplayNSWGraph({ autoRun = false }: { autoRun?: boolean }) {
   // handle drawing nodes and lines on grid, add click event handler
   useEffect(() => {
     const svg = select(svgElementRef.current);
-    drawGrid(svg, xScale, yScale);
     //mouse click event, not move
     svg.on("click", (event) => {
       if (isRunning) {
@@ -443,7 +450,7 @@ export function DisplayNSWGraph({ autoRun = false }: { autoRun?: boolean }) {
               case "SEARCH_COMPLETE":
                 return `Search Complete: Closest nodes are ${result?.map(
                   (n) => `node ${n.id} at (${n.vector[0]},${n.vector[1]})`
-                )}. Resetting in ${resetCountdown} seconds.
+                )}. Resetting in ${resetCountdown}.
                   `;
               default:
                 return "Adding Search Node";

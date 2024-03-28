@@ -166,8 +166,7 @@ export function drawGrid(
     .attr("x2", (d) => xScale(d))
     .attr("y1", 0)
     .attr("y2", 500)
-    .attr("stroke", (d) => (d === 0 ? "black" : "grey"))
-    .attr("opacity", 0.5)
+    .attr("stroke", (d) => (d === 0 ? "#808080" : "#A0A0A0"))
     .attr("stroke-width", (d) => (d === 0 ? 2 : 0.5));
 
   yGridLines
@@ -178,8 +177,7 @@ export function drawGrid(
     .attr("x2", 500)
     .attr("y1", (d) => yScale(d))
     .attr("y2", (d) => yScale(d))
-    .attr("stroke", (d) => (d === 0 ? "black" : "grey"))
-    .attr("opacity", 0.5)
+    .attr("stroke", (d) => (d === 0 ? "#808080" : "#A0A0A0"))
     .attr("stroke-width", (d) => (d === 0 ? 2 : 0.5));
 
   xGridLines
@@ -201,6 +199,38 @@ export function drawGrid(
     .text("(0, 0)");
 }
 
+export function drawSearchNode(
+  svg: Selection<SVGSVGElement | null, unknown, null, undefined>,
+  node: GraphNode,
+  xScale: ScaleLinear<number, number, never>,
+  yScale: ScaleLinear<number, number, never>
+) {
+  let group = svg.select<SVGSVGElement | null>(`g#sn${node.id}`);
+  if (!group.empty()) {
+    // if it exists, fill it blue
+    group.select("circle").style("fill", "blue");
+  } else {
+    // if it doesn't exist, draw it
+    group = svg.append<SVGSVGElement | null>("g").attr("id", `sn${node.id}`);
+    group
+      .append("circle")
+      .attr("cx", xScale(node.vector[0]))
+      .attr("cy", yScale(node.vector[1]))
+      .attr("r", 10)
+      .style("stroke", "black")
+      .style("fill", "blue");
+
+    group
+      .append("text")
+      .attr("x", xScale(node.vector[0]))
+      .attr("y", yScale(node.vector[1]) + 20) // position the text 15px below the node
+      .attr("text-anchor", "middle")
+      .attr("dominant-baseline", "central")
+      .style("fill", "black")
+      .text(`(${node.vector[0]}, ${node.vector[1]})`); // print the node's coordinates
+  }
+}
+
 export function drawNextStepInSearch(
   svg: Selection<SVGSVGElement | null, unknown, null, undefined>,
   searchNode: GraphNode,
@@ -213,8 +243,6 @@ export function drawNextStepInSearch(
   smallWorldRef: React.MutableRefObject<NavigableSmallWorld | undefined>
 ) {
   svg.selectAll("g > circle").style("fill", "transparent");
-  // make all lines not green
-  svg.selectAll("line").style("stroke", "black");
   // remove all lines that are green with id gl<searchNode.id>-<neighbor.id>
   svg.selectAll(`line[id^='gl${searchNode.id}-']`).remove();
   // remove all text that are green with id gt<searchNode.id>-<neighbor.id>
@@ -223,32 +251,7 @@ export function drawNextStepInSearch(
   // added previously by const group = svg.select(`g#n${node.id}`);
   svg.selectAll("g > circle").style("stroke-width", 1).attr("r", 10);
 
-  let group = svg.select<SVGSVGElement | null>(`g#sn${searchNode.id}`);
-  if (!group.empty()) {
-    // if it exists, fill it blue
-    group.select("circle").style("fill", "blue");
-  } else {
-    // if it doesn't exist, draw it
-    group = svg
-      .append<SVGSVGElement | null>("g")
-      .attr("id", `sn${searchNode.id}`);
-    group
-      .append("circle")
-      .attr("cx", xScale(searchNode.vector[0]))
-      .attr("cy", yScale(searchNode.vector[1]))
-      .attr("r", 10)
-      .style("stroke", "black")
-      .style("fill", "blue");
-
-    group
-      .append("text")
-      .attr("x", xScale(searchNode.vector[0]))
-      .attr("y", yScale(searchNode.vector[1]) + 20) // position the text 15px below the node
-      .attr("text-anchor", "middle")
-      .attr("dominant-baseline", "central")
-      .style("fill", "black")
-      .text(`(${searchNode.vector[0]}, ${searchNode.vector[1]})`); // print the node's coordinates
-  }
+  drawSearchNode(svg, searchNode, xScale, yScale);
 
   if (result?.done) {
     //get the return value of the generator
